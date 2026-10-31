@@ -30,15 +30,16 @@
     cap.classList.toggle("on", t > 0.6);
 
     // --- the traveller: hero position -> panel 1 -> panel 2, all in real viewport pixels
-    var hh = Math.max(560 * z, vh) * 0.62, s = lerp(0.92, 0.9, t);
-    var cur = { cx: vw / 2, cy: lerp(0.56, 0.37, t) * vh, w: hh * 1.25 * s, h: hh * s, fit: lerp(1.28, 1.25, t) };
+    var mob = vw <= 820;
+    var hh = mob ? vw * 0.62 : Math.max(560 * z, vh) * 0.62, s = lerp(0.92, 0.9, t);
+    var cur = { cx: vw / 2, cy: lerp(0.56, mob ? 0.33 : 0.37, t) * vh, w: hh * 1.25 * s, h: hh * s, fit: mob ? 1.0 : lerp(1.28, 1.25, t) };
     for (var i = 0; i < anchors.length; i++) {
       var a = anchors[i].getBoundingClientRect();
       var u = smooth(clamp(1 - a.top / vh, 0, 1));
       if (u <= 0) continue;
       cur = {
         cx: lerp(cur.cx, a.left + a.width / 2, u), cy: lerp(cur.cy, a.top + a.height / 2, u),
-        w: lerp(cur.w, a.width, u), h: lerp(cur.h, a.height, u), fit: lerp(cur.fit, PANEL_FIT, u),
+        w: lerp(cur.w, a.width, u), h: lerp(cur.h, a.height, u), fit: lerp(cur.fit, mob ? 0.8 : PANEL_FIT, u),
       };
     }
     trav.style.left = (cur.cx - cur.w / 2) + "px";

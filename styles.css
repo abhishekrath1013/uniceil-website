@@ -575,3 +575,6 @@ a { color: inherit; text-decoration: none; }
 .pp-var.r { right: calc(var(--ph) * -.3); top: calc(var(--ph) * .34); }
 .pp-title { top: calc(var(--ph) * .125); }
 .pp-cap { bottom: calc(var(--ph) * .05); }
+
+.menu-logo { height: auto; display: block; }
+.menu-logo img { width: 100%; height: auto; aspect-ratio: 1024 / 374; object-fit: contain; }

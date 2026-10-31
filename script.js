@@ -11,10 +11,15 @@
   function $$(s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); }
 
   /* ---- Scale the 1402px design frame to the viewport ---- */
+  // Phones/small tablets get a real responsive layout (no scaling); wider screens scale the 1402px design.
+  var mq = window.matchMedia("(max-width: 820px)");
+  var MOBILE = mq.matches;
+  root.classList.toggle("m", MOBILE);
   function fit() {
-    zoom = (root.clientWidth || window.innerWidth) / DESIGN_WIDTH;
+    zoom = MOBILE ? 1 : (root.clientWidth || window.innerWidth) / DESIGN_WIDTH;
     root.style.setProperty("--zoom", String(zoom));
   }
+  (mq.addEventListener ? mq.addEventListener.bind(mq, "change") : mq.addListener.bind(mq))(function () { location.reload(); });
   fit();
 
   /* ---- Reveals: play in when entering, play out when leaving, every time ---- */
@@ -101,9 +106,9 @@
   var stack = (function () {
     var wrap = $("#stack");
     if (!wrap) return function () {};
-    var cards = $$(".benefit", wrap), STEP = 237, W = 1370;
+    var cards = $$(".benefit", wrap), STEP = MOBILE ? 26 : 237;
     return function () {
-      var r = wrap.getBoundingClientRect();
+      var r = wrap.getBoundingClientRect(), W = r.width / zoom;
       var travel = r.height - window.innerHeight;
       var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
       var q = clamp(p / 0.88, 0, 1) * (cards.length - 1);     // last 12% of the runway just holds
@@ -121,7 +126,7 @@
     if (!sl) return;
     var tpl = $$(".sl", sl).map(function (el) { return el.innerHTML; });
     var n = tpl.length, COPIES = 2, L = n * COPIES;
-    var TILE_W = 290.413, TILE_H = 241.86, GAP = 24, CAP = 15.543 + 22, CX = 701, CY = 209;
+    var TILE_W = MOBILE ? 200 : 290.413, TILE_H = MOBILE ? 166 : 241.86, GAP = MOBILE ? 14 : 24, CAP = 15.543 + 22, CX = (sl.clientWidth || 1402) / 2, CY = MOBILE ? 145 : 209;
     var PITCH = TILE_W + GAP;
     var SPEED = animated ? 0.15 : 0;                   // tiles per second (~47px/s)
 
@@ -179,7 +184,7 @@
       var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
       var H = st.getBoundingClientRect().height / zoom;
       ims.forEach(function (im, k) {
-        var h = parseFloat(im.getAttribute("data-h"));
+        var h = im.offsetHeight || parseFloat(im.getAttribute("data-h"));
         var local = clamp((p - k * STEP) / WIN, 0, 1);
         im.style.transform = "translateY(" + lerp(H + 30, -h - 30, local) + "px)";
         im.firstElementChild.style.transform = "scale(" + (1 + 0.35 * (1 - ease(clamp(local * 2, 0, 1)))) + ")";
@@ -202,7 +207,7 @@
       var dy = (1 - a) * (H / 2 + 260), sc0 = lerp(0.78, 1, a);
       disc.style.transform = "translateY(" + dy + "px) scale(" + sc0 + ")";
       disc.style.opacity = String(1 - clamp(t * 4, 0, 1));
-      var R = lerp(204 * sc0, Math.hypot(W / 2, H / 2), t);
+      var R = lerp((disc.offsetWidth / 2 || 204) * sc0, Math.hypot(W / 2, H / 2), t);
       photo.style.clipPath = "circle(" + R + "px at 50% " + (H / 2 + dy * (1 - t)) + "px)";
       pimg.style.transform = "scale(" + lerp(1.5, 1, t) + ")";
       sc.classList.toggle("in", p > 0.9);
@@ -301,10 +306,10 @@
       var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
       var H = pin.getBoundingClientRect().height / zoom;
       if (!wmW && (!document.fonts || document.fonts.status === "loaded")) { var mk = $(".mk", box); if (mk) { var rg = document.createRange(); rg.selectNodeContents(mk); wmW = rg.getBoundingClientRect().width / zoom / (parseFloat(getComputedStyle(box).getPropertyValue("--wms")) || 1); } }
-      var fitW = wmW ? Math.min(1, (1402 - 100) / wmW) : 1;
+      var fitW = wmW ? Math.min(1, (pin.getBoundingClientRect().width / zoom - (MOBILE ? 32 : 100)) / wmW) : 1;
       box.style.setProperty("--wms", String(Math.min(1, H / 830, fitW)));
       sq.forEach(function (s, k) {
-        var h = parseFloat(s.getAttribute("data-h"));
+        var h = s.offsetHeight || parseFloat(s.getAttribute("data-h"));
         var local = clamp((p - k * 0.22) / 0.34, 0, 1);
         s.style.transform = "translateY(" + lerp(H + 30, -h - 30, local) + "px)";
       });
