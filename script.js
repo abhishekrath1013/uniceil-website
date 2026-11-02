@@ -78,6 +78,35 @@
     }, 2000);
   })();
 
+  /* ---- Hero headline: drifts down slower than the page and fades as it leaves ---- */
+  var heroParallax = (function () {
+    var title = $(".hero-title");
+    if (!title || !animated) return function () {};
+    return function () {
+      var y = window.scrollY, vh = window.innerHeight;
+      if (y > vh * 1.2) return;
+      title.style.transform = "translate3d(0," + (y * 0.22 / zoom) + "px,0)";
+      title.style.opacity = String(1 - clamp(y / (vh * 0.9), 0, 1) * 0.85);
+    };
+  })();
+
+  /* ---- Product boxes: backdrop and product drift at different speeds inside the frame ---- */
+  var cardParallax = (function () {
+    var cards = $$(".card");
+    if (!cards.length || !animated) return function () {};
+    var items = cards.map(function (c) { return { el: c, bg: $(".card-bg", c), fg: $(".card-fg", c) }; });
+    return function () {
+      var vh = window.innerHeight;
+      items.forEach(function (it) {
+        var r = it.el.getBoundingClientRect();
+        if (r.bottom < -100 || r.top > vh + 100) return;
+        var p = clamp(((r.top + r.height / 2) - vh / 2) / vh, -1, 1);   // -1 above centre ... 1 below
+        it.bg.style.transform = "translate3d(0," + (p * -18) + "px,0)";
+        it.fg.style.transform = "translate3d(0," + (p * -44) + "px,0) scale(1.06)";
+      });
+    };
+  })();
+
   /* ---- Intro paragraph: grey -> black, word by word, forwards and back ---- */
   var intro = (function () {
     var big = $(".intro-r .big");
@@ -102,20 +131,21 @@
     };
   })();
 
-  /* ---- Wall / Ceiling / Facade: cards slide in from the right and stack ---- */
+  /* ---- Wall / Ceiling / Facade: each card slides in by itself once its mark is crossed ---- */
   var stack = (function () {
     var wrap = $("#stack");
     if (!wrap) return function () {};
-    var cards = $$(".benefit", wrap), STEP = MOBILE ? 26 : 237;
+    var cards = $$(".benefit", wrap);
     return function () {
-      var r = wrap.getBoundingClientRect(), W = r.width / zoom;
+      if (!animated) { cards.forEach(function (c) { c.classList.add("on"); }); return; }
+      var r = wrap.getBoundingClientRect();
       var travel = r.height - window.innerHeight;
       var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
-      var q = clamp(p / 0.88, 0, 1) * (cards.length - 1);     // last 12% of the runway just holds
       cards.forEach(function (c, k) {
         if (k === 0) return;
-        var t = ease(clamp(q - (k - 1), 0, 1));
-        c.style.transform = "translateX(" + lerp(W - STEP * k, 0, t) + "px)";
+        // card k arrives at k/(n-1) of the runway, minus a lead so it has finished by then
+        var mark = (k / (cards.length - 1)) * 0.82 - 0.12;
+        c.classList.toggle("on", p >= mark);
       });
     };
   })();
@@ -141,7 +171,7 @@
     }
     var y = CY - (TILE_H + CAP) / 2;
 
-    var pos = Math.floor(n / 2), dragging = false, visible = true, last = 0, sx = 0, sp = 0;
+    var pos = Math.floor(n / 2), dragging = false, visible = true, last = 0, sx = 0, sp = 0, hover = false, spd = SPEED;
     function render() {
       for (var i = 0; i < L; i++) {
         var d = (((i - pos + L / 2) % L) + L) % L - L / 2;
@@ -151,7 +181,8 @@
     function frame(t) {
       var dt = Math.min(0.05, (t - last) / 1000 || 0);
       last = t;
-      if (visible && !dragging) pos = (pos + SPEED * dt) % L;
+      spd += ((hover ? 0 : SPEED) - spd) * Math.min(1, dt * 7);   // ease to a stop / back up to speed
+      if (visible && !dragging) pos = (pos + spd * dt) % L;
       if (visible) render();
       requestAnimationFrame(frame);
     }
@@ -167,11 +198,29 @@
     function end() { dragging = false; sl.classList.remove("drag"); }
     sl.addEventListener("pointerup", end);
     sl.addEventListener("pointercancel", end);
+    sl.addEventListener("pointerenter", function (e) { if (e.pointerType !== "touch") hover = true; });
+    sl.addEventListener("pointerleave", function () { hover = false; });
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (en) { visible = en[0].isIntersecting; }, { rootMargin: "200px 0px" }).observe(sl);
     }
     render();
     requestAnimationFrame(frame);
+  })();
+
+  /* ---- Real spaces: "Real spaces," starts top-left, "real profiles." bottom-right, they meet on scroll ---- */
+  var real = (function () {
+    var sc = $("#real");
+    if (!sc || !animated) return function () {};
+    var pin = $(".real-pin", sc), r1 = $(".r1", sc), r2 = $(".r2", sc);
+    return function () {
+      var r = sc.getBoundingClientRect(), travel = r.height - window.innerHeight;
+      var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
+      var H = pin.getBoundingClientRect().height / zoom;
+      var d = Math.max(0, (H - r1.offsetHeight - r2.offsetHeight) / 2 - 28);
+      var t = ease(clamp(p / 0.75, 0, 1));
+      r1.style.transform = "translate3d(0," + (-d * (1 - t)) + "px,0)";
+      r2.style.transform = "translate3d(0," + (d * (1 - t)) + "px,0)";
+    };
   })();
 
   /* ---- Sourcing: headline pinned, photos rise past it; 2nd headline arrives with the last photo ---- */
@@ -193,39 +242,50 @@
     };
   })();
 
-  /* ---- Circle rises from below, then grows into the full-bleed photo ---- */
+  /* ---- Video circle: plays while in view, grows into the full-bleed video ---- */
   var circle = (function () {
     var sc = $("#circ");
     if (!sc) return function () {};
-    var st = $(".circ-pin", sc), photo = $(".circ-photo", sc), pimg = $("img", photo), disc = $(".circ-disc", sc);
+    var st = $(".circ-pin", sc), photo = $(".circ-photo", sc), vid = $("video", photo), shade = $(".circ-shade", sc);
+    var playing = false;
+    function play() {
+      if (playing || !vid || !animated) return;
+      playing = true;
+      var pr = vid.play(); if (pr && pr.catch) pr.catch(function () { playing = false; });
+    }
+    function pause() { if (!playing) return; playing = false; vid.pause(); }
     return function () {
-      var r = sc.getBoundingClientRect(), travel = r.height - window.innerHeight;
+      var r = sc.getBoundingClientRect(), vh = window.innerHeight, travel = r.height - vh;
       var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
       var s = st.getBoundingClientRect(), W = s.width / zoom, H = s.height / zoom;
-      var a = ease(clamp(p / 0.28, 0, 1));                  // 1. rise in from the bottom
-      var t = ease(clamp((p - 0.28) / 0.52, 0, 1));         // 2. grow to fill the screen
-      var dy = (1 - a) * (H / 2 + 260), sc0 = lerp(0.78, 1, a);
-      disc.style.transform = "translateY(" + dy + "px) scale(" + sc0 + ")";
-      disc.style.opacity = String(1 - clamp(t * 4, 0, 1));
-      var R = lerp((disc.offsetWidth / 2 || 204) * sc0, Math.hypot(W / 2, H / 2), t);
-      photo.style.clipPath = "circle(" + R + "px at 50% " + (H / 2 + dy * (1 - t)) + "px)";
-      pimg.style.transform = "scale(" + lerp(1.5, 1, t) + ")";
-      sc.classList.toggle("in", p > 0.9);
+      var a = ease(clamp(p / 0.12, 0, 1));                  // 1. circle settles in
+      var t = ease(clamp((p - 0.12) / 0.62, 0, 1));         // 2. grows to fill the screen
+      var R0 = Math.min(210, H * 0.27);
+      var R = lerp(lerp(R0 * 0.8, R0, a), Math.hypot(W / 2, H / 2), t);
+      photo.style.clipPath = "circle(" + R + "px at 50% 50%)";
+      vid.style.transform = "scale(" + lerp(1.35, 1, t) + ")";
+      shade.style.opacity = String(t);
+      sc.classList.toggle("in", p > 0.82);
+      if (r.top < vh * 0.85 && r.bottom > 0) play(); else pause();
     };
   })();
 
-  /* ---- Projects: each row slides up from the bottom over the previous one ---- */
+  /* ---- Projects: cards stack; the one underneath scales back and dims as the next covers it ---- */
   var projects = (function () {
     var wrap = $("#pstack");
-    if (!wrap) return function () {};
+    if (!wrap || !animated) return function () {};
     var rows = $$(".row", wrap);
     return function () {
-      var r = wrap.getBoundingClientRect(), travel = r.height - window.innerHeight;
-      var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
-      var q = clamp(p / 0.92, 0, 1) * (rows.length - 1);
+      var vh = window.innerHeight;
+      if (wrap.getBoundingClientRect().top > vh) return;
       rows.forEach(function (row, k) {
-        if (k === 0) return;
-        row.style.transform = "translateY(" + (1 - ease(clamp(q - (k - 1), 0, 1))) * 100 + "%)";
+        var nx = rows[k + 1];
+        if (!nx) return;
+        var nr = nx.getBoundingClientRect(), rr = row.getBoundingClientRect();
+        var stuckTop = parseFloat(getComputedStyle(nx).top) * zoom;
+        var cover = clamp(1 - (nr.top - stuckTop) / Math.max(1, rr.height), 0, 1);
+        row.style.transform = "scale(" + (1 - 0.035 * cover) + ")";
+        row.style.setProperty("--cv", cover.toFixed(3));
       });
     };
   })();
@@ -353,7 +413,12 @@
     // keep the page still while the menu is open
     menu.addEventListener("wheel", function (e) { e.preventDefault(); }, { passive: false });
     menu.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
-    return function () { fab.classList.toggle("show", window.scrollY > 220); };
+    var logo = $(".logo-fab");
+    return function () {
+      var on = window.scrollY > 220;
+      fab.classList.toggle("show", on);
+      if (logo) logo.classList.toggle("show", on);
+    };
   })();
 
   /* ---- Scroll / resize wiring ---- */
@@ -361,7 +426,7 @@
   function onScroll() {
     if (ticking) return;
     ticking = true;
-    requestAnimationFrame(function () { ticking = false; intro(); stack(); source(); circle(); projects(); wordmark(); menuFab(); expand.update(); });
+    requestAnimationFrame(function () { ticking = false; heroParallax(); cardParallax(); intro(); stack(); real(); source(); circle(); projects(); wordmark(); menuFab(); expand.update(); });
   }
   function relayout() { fit(); expand.measure(); onScroll(); }
   window.addEventListener("scroll", onScroll, { passive: true });

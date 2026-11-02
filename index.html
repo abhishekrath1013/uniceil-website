@@ -21,10 +21,10 @@
         <button class="menu-btn" type="button" aria-label="Open menu" aria-haspopup="dialog" aria-controls="menu"><img src="assets/menu.svg" alt=""></button>
       </nav>
       <h1 class="display hero-title">
-        <span>Any project</span>
-        <span>three systems</span>
-        <span class="green cycle" aria-label="Baffle, Soffit, WPE"><span class="w">Baffle</span><span class="w" aria-hidden="true">Soffit</span><span class="w" aria-hidden="true">WPE</span></span>
-        <span class="comma">,</span>
+        <span style="--i:0">Any project</span>
+        <span style="--i:1">three systems</span>
+        <span class="green cycle" style="--i:2" aria-label="Baffle, Soffit, WPE"><span class="w">Baffle</span><span class="w" aria-hidden="true">Soffit</span><span class="w" aria-hidden="true">WPE</span></span>
+        <span class="comma" style="--i:2">,</span>
       </h1>
     </div>
     <div class="hero-sub io">
@@ -41,7 +41,8 @@
     <div class="cards">
       <a class="card rv" style="--i:0" href="baffle.html">
         <div class="card-img" style="background:#d9a969">
-          <img src="assets/ceiling.png" alt="" style="left:34.6px;top:29.7px;width:666.112px;height:352.707px">
+          <div class="card-bg"></div>
+          <div class="card-fg"><img src="assets/ceiling.png" alt="" style="left:34.6px;top:29.7px;width:666.112px;height:352.707px"></div>
         </div>
         <div class="card-text">
           <p class="t">Baffle</p>
@@ -50,7 +51,8 @@
       </a>
       <article class="card rv" style="--i:1">
         <div class="card-img" style="background:#6f3531">
-          <img src="assets/soffit.png" alt="" style="left:31.96px;top:-16px;width:536.783px;height:347.28px">
+          <div class="card-bg"></div>
+          <div class="card-fg"><img src="assets/soffit.png" alt="" style="left:31.96px;top:-16px;width:536.783px;height:347.28px"></div>
         </div>
         <div class="card-text">
           <p class="t">Soffit</p>
@@ -59,7 +61,8 @@
       </article>
       <article class="card rv" style="--i:2">
         <div class="card-img" style="background:#abb35b">
-          <img src="assets/wpe.png" alt="" style="left:-200.1px;top:24.97px;width:618.017px;height:345.78px">
+          <div class="card-bg"></div>
+          <div class="card-fg"><img src="assets/wpe.png" alt="" style="left:-200.1px;top:24.97px;width:618.017px;height:345.78px"></div>
         </div>
         <div class="card-text">
           <p class="t">Wood Poly Ethylene</p>
@@ -134,9 +137,11 @@
   </section>
 
   <!-- Real spaces -->
-  <section class="real display io">
-    <div class="r1"><p><span class="mask"><span class="mk" style="--i:0">Real spaces,</span></span></p></div>
-    <p class="r2"><span class="mask"><span class="mk" style="--i:1">real profiles.</span></span></p>
+  <section class="real display io" id="real">
+    <div class="real-pin">
+      <div class="r1"><p><span class="mask"><span class="mk" style="--i:0">Real spaces,</span></span></p></div>
+      <p class="r2"><span class="mask"><span class="mk" style="--i:5">real profiles.</span></span></p>
+    </div>
   </section>
 
   <!-- Gallery: centre image grows into the reception scene -->
@@ -176,8 +181,7 @@
   <!-- Circle grows into the full-bleed photo -->
   <section class="circ" id="circ">
     <div class="circ-pin">
-      <div class="circ-photo"><img class="fill" src="assets/sourcing-bg.png" alt=""><div class="circ-shade"></div></div>
-      <div class="circ-disc"><img src="assets/ellipse.png" alt=""></div>
+      <div class="circ-photo"><video class="fill" src="https://lpimages.b-cdn.net/uniceil/assets/videos/video-2.mp4" poster="assets/sourcing-bg.png" muted loop playsinline preload="auto" aria-hidden="true"></video><div class="circ-shade"></div></div>
       <div class="circ-text"><p><span class="mask"><span class="mk" style="--i:0">for our uPVC</span></span><span class="mask"><span class="mk" style="--i:1">profiles.</span></span></p></div>
     </div>
   </section>
@@ -186,8 +190,7 @@
 
   <!-- Project rows -->
   <section class="rows pstack" id="pstack">
-    <div class="pstack-pin">
-    <article class="row">
+    <article class="row" style="--k:0">
       <div class="row-info"><div class="row-info-in">
         <div class="row-head">
           <p class="kicker">Bangalore / Offices</p>
@@ -206,7 +209,7 @@
       <div class="row-photo"><div class="in"><img class="fill" src="assets/add3.png" alt=""></div></div>
     </article>
 
-    <article class="row">
+    <article class="row" style="--k:1">
       <div class="row-info"><div class="row-info-in">
         <div class="row-head">
           <p class="kicker">Bangalore / Offices</p>
@@ -225,7 +228,7 @@
       <div class="row-photo"><div class="in"><img class="fill" src="assets/pr1.png" alt=""></div></div>
     </article>
 
-    <article class="row">
+    <article class="row" style="--k:2">
       <div class="row-info"><div class="row-info-in">
         <div class="row-head">
           <p class="kicker">Chennai / Retail</p>
@@ -243,7 +246,6 @@
       </div></div>
       <div class="row-photo"><div class="in"><img class="fill" src="assets/pr2.png" alt=""></div></div>
     </article>
-    </div>
   </section>
 
   <!-- Certifications -->
@@ -293,6 +295,7 @@
     <div class="materials-in">
       <div class="materials-top">
         <div class="map"><img src="assets/map.png" alt=""></div>
+        <div class="pins">
         <div class="pin" style="left:calc(50% + 39.14px);top:145.23px"><img src="assets/pin.svg" alt=""></div>
         <div class="pin" style="left:calc(50% + 349.71px);top:63.42px"><img src="assets/pin.svg" alt=""></div>
         <div class="pin" style="left:calc(50% + 280px);top:107.05px"><img src="assets/pin.svg" alt=""></div>
@@ -301,20 +304,21 @@
         <div class="pin" style="left:calc(50% + 361.09px);top:116.99px"><img src="assets/pin.svg" alt=""></div>
         <div class="pin" style="left:calc(50% + 312.54px);top:131.49px"><img src="assets/pin.svg" alt=""></div>
         <div class="pin" style="left:calc(50% + 554.07px);top:250.25px"><img src="assets/pin.svg" alt=""></div>
+        </div>
         <div class="materials-head rv">
           <p class="label">Materials</p>
           <p class="h90">Building Blocks</p>
         </div>
-        <p class="materials-copy rv" style="--i:1">At Uniceil, quality begins with carefully selected raw <br class="dbr">materials and a rigorously researched uPVC formulation. <br class="dbr">Engineered for strength, durability and resistance to thermal <br class="dbr">expansion and contraction, our products deliver reliable <br class="dbr">performance in changing climates. Our commitment to <br class="dbr">sustainability balances reduced carbon footprints with <br class="dbr">uncompromising quality, combining engineering excellence <br class="dbr">with ecological responsibility.</p>
+        <p class="materials-copy rv" style="--i:1">At Uniceil, quality begins with carefully selected raw materials and a rigorously researched uPVC formulation. Engineered for strength, durability and resistance to thermal expansion and contraction, our products deliver reliable performance in changing climates. Our commitment to sustainability balances reduced carbon footprints with uncompromising quality, combining engineering excellence with ecological responsibility.</p>
       </div>
       <div class="rule"></div>
       <div class="materials-bottom">
         <p class="lead rv">We source only the best, globally renowned additives for our uPVC profiles.</p>
         <div class="adds">
-          <div class="add rv" style="--i:1"><p class="n">TiO₂</p><p class="d">for UV resistance</p></div>
-          <div class="add rv" style="--i:2"><p class="n">Fillers</p><p class="d">of the highest grades for whiteness</p></div>
-          <div class="add rv" style="--i:3"><p class="n">Impact modifiers &amp; <br class="dbr">processing aids</p><p class="d">known for their strength and gloss levels</p></div>
-          <div class="add rv" style="--i:4"><p class="n">Non-lead stabilisers</p><p class="d">to enhance processability and weather resistance</p></div>
+          <div class="add rv" style="--i:1"><p class="ix">01</p><p class="n">TiO₂</p><p class="d">for UV resistance</p></div>
+          <div class="add rv" style="--i:2"><p class="ix">02</p><p class="n">Fillers</p><p class="d">of the highest grades for whiteness</p></div>
+          <div class="add rv" style="--i:3"><p class="ix">03</p><p class="n">Impact modifiers &amp; processing aids</p><p class="d">known for their strength and gloss levels</p></div>
+          <div class="add rv" style="--i:4"><p class="ix">04</p><p class="n">Non-lead stabilisers</p><p class="d">to enhance processability and weather resistance</p></div>
         </div>
       </div>
     </div>
@@ -348,6 +352,7 @@
 
 </main>
 
+<a class="logo-fab" href="#" aria-label="Uniceil — back to top"><img src="assets/logo.png" alt="Uniceil"></a>
 <button class="menu-fab" type="button" aria-label="Open menu" aria-haspopup="dialog" aria-controls="menu"><img src="assets/menu.svg" alt=""></button>
 
 <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" aria-hidden="true">
