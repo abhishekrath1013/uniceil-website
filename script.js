@@ -415,7 +415,7 @@
     // keep the page still while the menu is open
     menu.addEventListener("wheel", function (e) { e.preventDefault(); }, { passive: false });
     menu.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
-    var logo = $(".site-logo"), bar = $(".site-bar");
+    var logo = $(".site-logo");
     var darks = $$("#stack, #circ, #expand, .materials");
     if (logo) logo.addEventListener("click", function (e) {
       if (logo.getAttribute("href") !== "#") return;
@@ -426,7 +426,6 @@
     return function () {
       var shown = window.scrollY > 220;
       fab.classList.toggle("show", shown);
-      if (bar) bar.classList.toggle("show", shown);
       if (!logo) return;
       // white while the menu is open or when the logo sits over a dark section
       var lr = logo.getBoundingClientRect(), y = lr.top + lr.height / 2, light = isOpen;
