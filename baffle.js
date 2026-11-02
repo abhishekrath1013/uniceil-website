@@ -110,7 +110,7 @@
     vl.style.transform = "translateX(" + (-(1 - t) * 340) + "px)";
     vr.style.transform = "translateX(" + ((1 - t) * 340) + "px)";
     cap.classList.toggle("on", t > 0.6);
-    if (hint) hint.classList.toggle("on", true);
+    if (hint) hint.classList.toggle("on", t > 0.6);
 
     // --- the traveller: hero position -> panel 1 -> panel 2, all in real viewport pixels
     var mob = vw <= 820;

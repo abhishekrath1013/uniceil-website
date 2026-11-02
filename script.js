@@ -216,7 +216,7 @@
       var r = sc.getBoundingClientRect(), travel = r.height - window.innerHeight;
       var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
       var H = pin.getBoundingClientRect().height / zoom;
-      var d = Math.max(0, (H - r1.offsetHeight - r2.offsetHeight) / 2 - 28);
+      var d = Math.max(0, (H - r1.offsetHeight - r2.offsetHeight) / 2 - 100);   // start below the logo
       var t = ease(clamp(p / 0.75, 0, 1));
       r1.style.transform = "translate3d(0," + (-d * (1 - t)) + "px,0)";
       r2.style.transform = "translate3d(0," + (d * (1 - t)) + "px,0)";
@@ -437,7 +437,6 @@
         if (r.top <= y && r.bottom >= y) light = true;
       });
       logo.classList.toggle("light", light);
-      if (bar) bar.classList.toggle("light", light && !isOpen);
     };
   })();
 

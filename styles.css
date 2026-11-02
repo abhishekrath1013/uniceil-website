@@ -233,7 +233,7 @@ a { color: inherit; text-decoration: none; }
 /* ---------- Sourcing: text pinned, photos rise past it one by one ---------- */
 .source { position: relative; width: 100%; height: calc(max(560px, var(--hv)) * 4.2); --fs: min(189px, calc(var(--hv) / 4.7)); }
 .source-pin {
-  position: sticky; top: 0; height: max(560px, var(--hv)); overflow: hidden;
+  position: sticky; top: 0; height: max(560px, var(--hv)); overflow: hidden; padding-top: 96px;
   display: flex; flex-direction: column; justify-content: space-between;
   font-weight: 476; font-size: var(--fs); letter-spacing: -.05em; line-height: .92;
 }
@@ -621,16 +621,14 @@ a { color: inherit; text-decoration: none; }
 .menu-logo { height: auto; display: block; }
 .menu-logo img { width: 100%; height: auto; aspect-ratio: 1024 / 374; object-fit: contain; }
 
-/* ---------- Glass header bar behind the sticky logo + menu ---------- */
+/* ---------- Header fade: no box, content just softens as it passes behind the logo / menu ---------- */
 .site-bar {
-  position: fixed; z-index: 85; left: 0; right: 0; top: 0; height: calc(98px * var(--zoom, 1));
-  background: rgba(232, 232, 228, .55); border-bottom: 1px solid rgba(31, 31, 31, .07);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2);
-  opacity: 0; transform: translateY(-100%); pointer-events: none;
-  transition: opacity .35s ease, transform .5s cubic-bezier(.2, .8, .2, 1), background-color .35s ease, border-color .35s ease;
+  position: fixed; z-index: 85; left: 0; right: 0; top: 0; height: calc(104px * var(--zoom, 1)); pointer-events: none;
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 100%); mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 100%);
+  opacity: 0; transition: opacity .35s ease;
 }
-.site-bar.show { opacity: 1; transform: none; }
-.site-bar.light { background: rgba(20, 20, 20, .38); border-bottom-color: rgba(255, 255, 255, .08); }
+.site-bar.show { opacity: 1; }
 
 /* ---------- Baffle: switch hint + per-product spec tag ---------- */
 .pp-hint {
@@ -648,7 +646,7 @@ a { color: inherit; text-decoration: none; }
 .pp-hint .dots i { width: 7px; height: 7px; border-radius: 50%; background: #1f1f1f; opacity: .2; transition: opacity .3s ease, transform .3s ease, background-color .3s ease; }
 .pp-hint .dots i.on { opacity: 1; background: #34a043; transform: scale(1.3); }
 .pp-hint .nm { min-width: 110px; text-align: center; }
-.js .pp-hint { opacity: 0; transition: opacity .6s ease .6s; }
+.js .pp-hint { opacity: 0; transition: opacity .5s ease; }
 .js .pp-hint.on { opacity: 1; }
 
 .pp-h .tag { flex: 0 0 auto; font-style: normal; font-weight: 700; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #fff; background: #34a043; border-radius: 14px; padding: 5px 12px; white-space: nowrap; }

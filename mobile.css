@@ -170,7 +170,7 @@
   .menu-fab { right: 16px; top: 15px; width: 48px; height: 48px; }
   .menu-fab img { width: 20px; height: 20px; }
   .real-pin { justify-content: center; }
-  .site-bar { height: 80px; }
+  .site-bar { height: 84px; }
   .pp-hint { right: 16px; left: 16px; align-items: stretch; bottom: auto; top: calc(var(--ph) * .58); }
   .pp-hint .hrow { justify-content: center; }
 
