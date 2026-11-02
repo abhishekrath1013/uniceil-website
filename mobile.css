@@ -48,8 +48,7 @@
   .stack { height: calc(max(520px, var(--hv)) * 3); }
   .stack-pin { height: max(520px, var(--hv)); }
   .benefit { left: calc(var(--k) * 26px); }
-  .benefit-word { left: -2px; top: -2cqh; bottom: 2cqh; width: 27cqh; }
-  .benefit-word p { width: 54cqh; height: 27cqh; font-size: calc(var(--wf, 60) * .5cqh); letter-spacing: calc(var(--wf, 60) * -.0283cqh); }
+  .benefit-word { --fs: 17cqh; left: 6px; }
   .benefit-copy { left: 40px; right: 16px; bottom: 28px; width: auto; gap: 16px; }
   .benefit-copy .d { font-size: 17px; line-height: 1.32; }
   .benefit-copy .a { font-size: 12px; letter-spacing: .8px; }
@@ -171,6 +170,9 @@
   .menu-fab { right: 16px; top: 15px; width: 48px; height: 48px; }
   .menu-fab img { width: 20px; height: 20px; }
   .real-pin { justify-content: center; }
+  .site-bar { height: 80px; }
+  .pp-hint { right: 16px; left: 16px; align-items: stretch; bottom: auto; top: calc(var(--ph) * .58); }
+  .pp-hint .hrow { justify-content: center; }
 
   /* ---------- Baffle product page ---------- */
   .stage.pp { padding: 0; gap: 0; --ph: max(520px, var(--hv)); }

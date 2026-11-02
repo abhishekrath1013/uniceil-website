@@ -16,6 +16,88 @@
 
   var HERO_FIT = 1.0, PANEL_FIT = 0.95;
 
+  // Per-product data. `pitch` tilts the main model so its lighting line faces the viewer.
+  var PRODUCTS = {
+    direct: {
+      name: "Baffle Direct", pitch: -0.5,
+      specs: {
+        material: "100% recyclable uPVC", config: "Linear · direct-down lighting", width: "84mm – 150mm",
+        length: "Up to 6000mm, custom cut", lighting: "Integrated direct-down LED channel",
+        fire: "Class B-s1, d0 rated core", finish: "Matte, gloss, wood-look laminate", warranty: "10-year manufacturing warranty",
+      },
+    },
+    cove: {
+      name: "Baffle Cove", pitch: 0.5,
+      specs: {
+        material: "100% recyclable uPVC", config: "In-Fill · cove-lit reveal", width: "150mm – 300mm",
+        length: "Up to 4000mm, custom cut", lighting: "Cove channel, warm-white or tunable",
+        fire: "Class B-s1, d0 rated core", finish: "Matte, wood-look laminate", warranty: "10-year manufacturing warranty",
+      },
+    },
+    indirect: {
+      name: "Baffle Indirect", pitch: 0.5,
+      specs: {
+        material: "100% recyclable uPVC", config: "Open baffle blades · indirect lighting", width: "100mm – 200mm blades",
+        length: "Up to 6000mm, custom cut", lighting: "Indirect uplight channel, optional",
+        fire: "Class B-s1, d0 rated core", finish: "Matte, gloss", warranty: "10-year manufacturing warranty",
+      },
+    },
+  };
+  var ORDER = ["direct", "cove", "indirect"];
+  var current = "direct", pitchCur = null;
+  var hint = sc.querySelector(".pp-hint"), hintName = hint && hint.querySelector(".nm");
+  var dots = hint ? Array.prototype.slice.call(hint.querySelectorAll(".dots i")) : [];
+  var specTag = document.getElementById("spec-tag"), specList = document.querySelector(".specs-t");
+
+  function applyProduct(key) {
+    var P = PRODUCTS[key]; if (!P) return;
+    current = key;
+    if (hintName) hintName.textContent = P.name;
+    dots.forEach(function (d, i) { d.classList.toggle("on", ORDER[i] === key); });
+    if (specTag) specTag.textContent = P.name;
+    if (specList) {
+      specList.classList.add("swap");
+      setTimeout(function () {
+        Array.prototype.forEach.call(specList.querySelectorAll("dd[data-k]"), function (dd) { dd.textContent = P.specs[dd.getAttribute("data-k")]; });
+        specList.classList.remove("swap");
+      }, 250);
+    }
+    easePitch();
+  }
+  window.addEventListener("baffle-select", function (e) { applyProduct(e.detail.variant); });
+
+  // glide the tilt when the product changes (the line sits on the underside of "direct")
+  var easing = false;
+  function easePitch() {
+    if (easing) return; easing = true;
+    (function step() {
+      var tgt = PRODUCTS[current].pitch;
+      pitchCur += (tgt - pitchCur) * 0.12;
+      update();
+      if (Math.abs(tgt - pitchCur) > 0.004) requestAnimationFrame(step); else { pitchCur = tgt; easing = false; update(); }
+    })();
+  }
+
+  // swipe on the hero (outside the draggable product) or arrow keys switch products
+  var sw = null;
+  function heroVisible() { var r = sc.getBoundingClientRect(); return r.bottom > window.innerHeight * 0.5 && r.top < window.innerHeight * 0.5; }
+  window.addEventListener("pointerdown", function (e) {
+    if (!heroVisible() || (e.target.closest && e.target.closest("a,button,[role=dialog]"))) return;
+    var B = window.Baffle3D, m = B && B.views.main, r = m && m.rect;
+    if (r && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) return;
+    sw = { x: e.clientX, y: e.clientY };
+  });
+  window.addEventListener("pointerup", function (e) {
+    if (!sw) return;
+    var dx = e.clientX - sw.x, dy = e.clientY - sw.y; sw = null;
+    if (Math.abs(dx) > 60 && Math.abs(dy) < 70 && window.Baffle3D) window.Baffle3D.select(dx < 0 ? "right" : "left");
+  });
+  window.addEventListener("keydown", function (e) {
+    if (!heroVisible() || !window.Baffle3D) return;
+    if (e.key === "ArrowRight") window.Baffle3D.select("right");
+    else if (e.key === "ArrowLeft") window.Baffle3D.select("left");
+  });
+
   function update() {
     var z = parseFloat(getComputedStyle(root).getPropertyValue("--zoom")) || 1;
     var vw = window.innerWidth, vh = window.innerHeight;
@@ -28,6 +110,7 @@
     vl.style.transform = "translateX(" + (-(1 - t) * 340) + "px)";
     vr.style.transform = "translateX(" + ((1 - t) * 340) + "px)";
     cap.classList.toggle("on", t > 0.6);
+    if (hint) hint.classList.toggle("on", true);
 
     // --- the traveller: hero position -> panel 1 -> panel 2, all in real viewport pixels
     var mob = vw <= 820;
@@ -49,7 +132,8 @@
     // spin once while travelling to the cards, then rest at a different angle
     var tu = anchors.length ? smooth(clamp(1 - anchors[0].getBoundingClientRect().top / vh, 0, 1)) : 0;
     var B = window.Baffle3D;
-    if (B && B.views.main) { B.views.main.yaw = 1.12 + tu * (Math.PI * 2 - 0.5); B.views.main.pitch = lerp(0.5, 0.4, tu); }
+    if (pitchCur === null) pitchCur = PRODUCTS[current].pitch;
+    if (B && B.views.main) { B.views.main.yaw = 1.12 + tu * (Math.PI * 2 - 0.5); B.views.main.pitch = pitchCur + (pitchCur > 0 ? -0.1 * tu : 0); }
     if (B && B.views.main) B.views.main.fit = cur.fit;
   }
 
