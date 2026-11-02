@@ -418,15 +418,12 @@ a { color: inherit; text-decoration: none; }
 .menu-fab img { width: calc(20px * var(--zoom, 1)); height: calc(20px * var(--zoom, 1)); }
 .menu-fab.show { opacity: 1; transform: none; pointer-events: auto; }
 .menu-btn { cursor: pointer; }
-/* sticky logo: pill that appears with the menu button once the page scrolls */
-.logo-fab {
-  position: fixed; z-index: 90; left: calc(16px * var(--zoom, 1)); top: calc(21px * var(--zoom, 1));
-  height: calc(56px * var(--zoom, 1)); padding: 0 calc(22px * var(--zoom, 1)); border-radius: calc(28px * var(--zoom, 1));
-  background: #fff; border: 1px solid #ddded8; display: flex; align-items: center;
-  opacity: 0; transform: translateY(-14px); pointer-events: none; transition: opacity .35s ease, transform .5s cubic-bezier(.2, .8, .2, 1);
-}
-.logo-fab img { width: calc(100px * var(--zoom, 1)); height: auto; aspect-ratio: 1024 / 374; }
-.logo-fab.show { opacity: 1; transform: none; pointer-events: auto; }
+/* one logo for the whole site: fixed at the hero logo's spot, no backing; turns white over dark areas and the menu */
+.site-logo { position: fixed; z-index: 120; left: calc(16px * var(--zoom, 1)); top: calc(28px * var(--zoom, 1)); width: calc(142.913px * var(--zoom, 1)); display: block; }
+.site-logo img { width: 100%; aspect-ratio: 114.4697265625 / 33.89031982421875; transition: filter .35s ease; }
+.site-logo.light img { filter: brightness(0) invert(1); }
+.nav-logo { visibility: hidden; }
+.menu-logo { display: none; }
 
 .menu {
   --ox: calc(100% - 44px * var(--zoom, 1)); --oy: calc(49px * var(--zoom, 1));

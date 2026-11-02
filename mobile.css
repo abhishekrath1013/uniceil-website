@@ -167,8 +167,7 @@
   .menu-info .mi:nth-child(3) { display: none; }
 
   .map { opacity: .14; }
-  .logo-fab { left: 16px; top: 15px; height: 48px; padding: 0 18px; border-radius: 24px; }
-  .logo-fab img { width: 84px; }
+  .site-logo { left: 16px; top: 22px; width: 118px; }
   .menu-fab { right: 16px; top: 15px; width: 48px; height: 48px; }
   .menu-fab img { width: 20px; height: 20px; }
   .real-pin { justify-content: center; }

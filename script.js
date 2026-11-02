@@ -380,10 +380,11 @@
   var menuFab = (function () {
     var menu = $("#menu"), fab = $(".menu-fab");
     if (!menu) return function () {};
-    var openers = $$(".menu-btn, .menu-fab"), isOpen = false;
+    var openers = $$(".menu-btn, .menu-fab"), isOpen = false, logoEl = $(".site-logo");
     function open() {
       if (isOpen) return;
       isOpen = true;
+      logoEl && logoEl.classList.add("light");
       menu.classList.add("open");
       menu.setAttribute("aria-hidden", "false");
       setTimeout(function () { if (isOpen) menu.classList.add("in"); }, 250);
@@ -392,6 +393,7 @@
     function close(then) {
       if (!isOpen) return;
       isOpen = false;
+      setTimeout(function () { onScroll(); }, 60);
       menu.classList.remove("in");
       menu.classList.remove("open");
       menu.setAttribute("aria-hidden", "true");
@@ -413,11 +415,26 @@
     // keep the page still while the menu is open
     menu.addEventListener("wheel", function (e) { e.preventDefault(); }, { passive: false });
     menu.addEventListener("touchmove", function (e) { e.preventDefault(); }, { passive: false });
-    var logo = $(".logo-fab");
+    var logo = $(".site-logo");
+    var darks = $$("#stack, #circ, #expand, .materials");
+    if (logo) logo.addEventListener("click", function (e) {
+      if (logo.getAttribute("href") !== "#") return;
+      e.preventDefault();
+      close(function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+      if (!isOpen) window.scrollTo({ top: 0, behavior: "smooth" });
+    });
     return function () {
-      var on = window.scrollY > 220;
-      fab.classList.toggle("show", on);
-      if (logo) logo.classList.toggle("show", on);
+      fab.classList.toggle("show", window.scrollY > 220);
+      if (!logo) return;
+      // white while the menu is open or when the logo sits over a dark section
+      var lr = logo.getBoundingClientRect(), y = lr.top + lr.height / 2, light = isOpen;
+      if (!light) darks.forEach(function (d) {
+        if (d.id === "circ" && !d.classList.contains("in")) return;
+        if (d.id === "expand" && !d.classList.contains("in")) return;
+        var r = d.getBoundingClientRect();
+        if (r.top <= y && r.bottom >= y) light = true;
+      });
+      logo.classList.toggle("light", light);
     };
   })();
 
