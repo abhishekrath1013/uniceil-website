@@ -137,7 +137,7 @@
 
   /* contact */
   .contact-title { padding: 40px 16px 0; }
-  .contact-title p { font-size: 16.4vw; letter-spacing: -.04em; }
+  .contact-title p { font-size: 16.4vw; letter-spacing: -.04em; white-space: normal; line-height: .9; }
   .contact-body { flex-direction: column; height: auto; }
   .contact-info { width: 100%; height: auto; padding: 30px 16px 34px; gap: 28px; }
   .contact-info .intro-t p.d { width: auto; font-size: 15px; line-height: 23px; }
