@@ -424,7 +424,7 @@
           if (e.clientY - rr.top > Math.max(step, 60) * zoom) return;        // only the teaser strip
           var pr = ps.getBoundingClientRect();
           var pitch = rows[rows.length - 1].getBoundingClientRect().height + parseFloat(getComputedStyle(ps).rowGap) * zoom;   // last row is never scaled
-          var stuck = parseFloat(getComputedStyle(row).top) * zoom;
+          var cs = getComputedStyle(row), stuck = (parseFloat(cs.top) + parseFloat(cs.marginTop)) * zoom;
           go(window.scrollY + pr.top + k * pitch - stuck);
         });
       });
