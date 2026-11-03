@@ -309,25 +309,8 @@
     };
   })();
 
-  /* ---- Projects: cards stack; the one underneath scales back and dims as the next covers it ---- */
-  var projects = (function () {
-    var wrap = $("#pstack");
-    if (!wrap || !animated) return function () {};
-    var rows = $$(".row", wrap);
-    return function () {
-      var vh = window.innerHeight;
-      if (wrap.getBoundingClientRect().top > vh) return;
-      rows.forEach(function (row, k) {
-        var nx = rows[k + 1];
-        if (!nx) return;
-        var nr = nx.getBoundingClientRect(), rr = row.getBoundingClientRect();
-        var stuckTop = parseFloat(getComputedStyle(nx).top) * zoom;
-        var cover = clamp(1 - (nr.top - stuckTop) / Math.max(1, rr.height), 0, 1);
-        row.style.transform = "scale(" + (1 - 0.035 * cover) + ")";
-        row.style.setProperty("--cv", cover.toFixed(3));
-      });
-    };
-  })();
+  /* ---- Projects: cards stack with CSS sticky; no scaling or dimming of the cards underneath ---- */
+  var projects = function () {};
 
   /* ---- Gallery: centre image grows to fill the viewport, then the text arrives ---- */
   var expand = (function () {
