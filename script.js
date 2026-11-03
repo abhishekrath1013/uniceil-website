@@ -107,6 +107,27 @@
     };
   })();
 
+  /* ---- Product boxes: layers follow the pointer ---- */
+  (function () {
+    if (!animated || !window.matchMedia("(hover: hover)").matches) return;
+    $$(".card").forEach(function (c) {
+      var tx = 0, ty = 0, x = 0, y = 0, raf = 0;
+      function tick() {
+        x += (tx - x) * 0.12; y += (ty - y) * 0.12;
+        c.style.setProperty("--mx", x.toFixed(3)); c.style.setProperty("--my", y.toFixed(3));
+        raf = (Math.abs(tx - x) > 0.002 || Math.abs(ty - y) > 0.002) ? requestAnimationFrame(tick) : 0;
+      }
+      function go() { if (!raf) raf = requestAnimationFrame(tick); }
+      c.addEventListener("pointermove", function (e) {
+        var r = c.getBoundingClientRect();
+        tx = clamp((e.clientX - r.left) / r.width * 2 - 1, -1, 1);
+        ty = clamp((e.clientY - r.top) / r.height * 2 - 1, -1, 1);
+        go();
+      });
+      c.addEventListener("pointerleave", function () { tx = 0; ty = 0; go(); });
+    });
+  })();
+
   /* ---- Intro paragraph: grey -> black, word by word, forwards and back ---- */
   var intro = (function () {
     var big = $(".intro-r .big");
