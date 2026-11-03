@@ -193,10 +193,28 @@
     var y = CY - (TILE_H + CAP) / 2;
 
     var pos = Math.floor(n / 2), dragging = false, visible = true, last = 0, sx = 0, sp = 0, hover = false, spd = SPEED;
+    var mx = null, scl = items.map(function () { return 1; }), MAXS = MOBILE ? 1 : 1.42, RAD = PITCH * 0.95;
+    /* dock-style magnification: tiles near the pointer grow smoothly and push their neighbours aside */
     function render() {
-      for (var i = 0; i < L; i++) {
-        var d = (((i - pos + L / 2) % L) + L) % L - L / 2;
-        items[i].style.transform = "translate3d(" + (CX + d * PITCH - TILE_W / 2) + "px," + y + "px,0)";
+      var ds = [], tg = [], j = -1, best = 1e9, i, d;
+      for (i = 0; i < L; i++) {
+        d = (((i - pos + L / 2) % L) + L) % L - L / 2;
+        ds.push(d);
+        var t = 1;
+        if (mx !== null) { var dx = CX + d * PITCH - mx; t = 1 + (MAXS - 1) * Math.exp(-(dx * dx) / (RAD * RAD)); if (Math.abs(dx) < best) { best = Math.abs(dx); j = i; } }
+        tg.push(t);
+        scl[i] += (t - scl[i]) * 0.18;
+      }
+      for (i = 0; i < L; i++) {
+        var shift = 0;
+        if (j >= 0 && i !== j) {
+          var dir = ds[i] > ds[j] ? 1 : -1, k;
+          shift = (scl[j] - 1) * TILE_W / 2 + (scl[i] - 1) * TILE_W / 2;
+          for (k = 0; k < L; k++) if (ds[k] > Math.min(ds[i], ds[j]) && ds[k] < Math.max(ds[i], ds[j])) shift += (scl[k] - 1) * TILE_W;
+          shift *= dir;
+        }
+        items[i].style.transform = "translate3d(" + (CX + ds[i] * PITCH - TILE_W / 2 + shift) + "px," + y + "px,0) scale(" + scl[i].toFixed(3) + ")";
+        items[i].style.zIndex = String(Math.round(scl[i] * 100));
       }
     }
     function frame(t) {
@@ -213,6 +231,7 @@
       try { sl.setPointerCapture(e.pointerId); } catch (err) {}
     });
     sl.addEventListener("pointermove", function (e) {
+      if (e.pointerType !== "touch") mx = (e.clientX - sl.getBoundingClientRect().left) / zoom;
       if (!dragging) return;
       pos = (((sp - (e.clientX - sx) / zoom / PITCH) % L) + L) % L;
     });
@@ -220,7 +239,7 @@
     sl.addEventListener("pointerup", end);
     sl.addEventListener("pointercancel", end);
     sl.addEventListener("pointerenter", function (e) { if (e.pointerType !== "touch") hover = true; });
-    sl.addEventListener("pointerleave", function () { hover = false; });
+    sl.addEventListener("pointerleave", function () { hover = false; mx = null; });
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (en) { visible = en[0].isIntersecting; }, { rootMargin: "200px 0px" }).observe(sl);
     }
@@ -237,9 +256,8 @@
       var r = sc.getBoundingClientRect(), travel = r.height - window.innerHeight;
       var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
       var H = pin.getBoundingClientRect().height / zoom;
-      var d = Math.max(0, (H - r1.offsetHeight - r2.offsetHeight) / 2 - 100);   // start below the logo
-      var t = ease(clamp(p / 0.75, 0, 1));
-      r1.style.transform = "translate3d(0," + (-d * (1 - t)) + "px,0)";
+      var d = Math.max(0, (H - r1.offsetHeight - r2.offsetHeight) / 2 + r2.offsetHeight * 0.4);   // second line starts from the bottom edge
+      var t = ease(clamp(p / 0.85, 0, 1));
       r2.style.transform = "translate3d(0," + (d * (1 - t)) + "px,0)";
     };
   })();
@@ -395,6 +413,39 @@
         s.style.transform = "translateY(" + lerp(H + 30, -h - 30, local) + "px)";
       });
     };
+  })();
+
+  /* ---- Click a panel / teaser to roll the page back (or on) to the state where it is revealed ---- */
+  (function () {
+    function go(y) { if (Math.abs(y - window.scrollY) > 8) window.scrollTo({ top: Math.max(0, y), behavior: "smooth" }); }
+    var wrap = $("#stack");
+    if (wrap && animated) {
+      var cards = $$(".benefit", wrap), n = cards.length;
+      cards.forEach(function (c, k) {
+        c.addEventListener("click", function (e) {
+          if (e.target.closest("a")) return;
+          var r = wrap.getBoundingClientRect(), travel = r.height - window.innerHeight;
+          var p = k === 0 ? 0 : (k / (n - 1)) * 0.82 - 0.12 + 0.04;        // just past the mark where this panel has slid in
+          if (k === n - 1) p = Math.max(p, 0.98 * 0.82 - 0.12 + 0.04);
+          go(window.scrollY + r.top + p * travel);
+        });
+      });
+    }
+    var ps = $("#pstack");
+    if (ps && animated) {
+      var rows = $$(".row", ps);
+      rows.forEach(function (row, k) {
+        row.addEventListener("click", function (e) {
+          if (e.target.closest("a")) return;
+          var rr = row.getBoundingClientRect(), step = parseFloat(getComputedStyle(row).getPropertyValue("--step")) || 0;
+          if (e.clientY - rr.top > Math.max(step, 60) * zoom) return;        // only the teaser strip
+          var pr = ps.getBoundingClientRect();
+          var pitch = rows[rows.length - 1].getBoundingClientRect().height + parseFloat(getComputedStyle(ps).rowGap) * zoom;   // last row is never scaled
+          var stuck = parseFloat(getComputedStyle(row).top) * zoom;
+          go(window.scrollY + pr.top + k * pitch - stuck);
+        });
+      });
+    }
   })();
 
   /* ---- Menu ---- */
