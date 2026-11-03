@@ -145,12 +145,11 @@
   /* footer */
   .wm-scene { height: calc(max(520px, var(--hv)) * 3.4); }
   .wm-pin { height: max(520px, var(--hv)); }
-  .collage { width: 34vw !important; height: 34vw !important; }
-  .collage:nth-child(1) { left: 62% !important; }
+  .collage { width: 34vw !important; height: 30vw !important; }
+  .collage:nth-child(1) { left: 33% !important; }
   .collage:nth-child(2) { left: 2% !important; }
-  .collage:nth-child(3) { left: 30% !important; }
-  .collage:nth-child(4) { left: 48% !important; }
-  .collage img { left: -45% !important; top: 8% !important; width: 260% !important; height: auto !important; }
+  .collage:nth-child(3) { left: 64% !important; }
+  .collage img { left: 7% !important; top: 7% !important; width: 93% !important; height: 93% !important; }
   .footer-cols { flex-wrap: wrap; gap: 30px 16px; padding: 30px 16px; }
   .fbrand { width: 100%; }
   .fcol { width: calc(50% - 8px); }

@@ -285,7 +285,8 @@ a { color: inherit; text-decoration: none; }
 .certs { width: 100%; background: #dcdcdc; overflow: hidden; padding: 54px 32px 34px; display: flex; flex-direction: column; gap: 60px; align-items: center; }
 .rule { width: 100%; height: 1px; background: #1f1f1f; opacity: .12; flex-shrink: 0; }
 .certs-top { width: 100%; display: flex; gap: 16px; align-items: flex-start; }
-.certs-title { width: 571px; height: 273px; display: flex; flex-direction: column; gap: 16px; font-weight: 700; }
+.certs-title { width: 600px; height: 273px; display: flex; flex-direction: column; gap: 16px; font-weight: 700; }
+.certs-copy { font-weight: 400; font-size: 14px; line-height: 21px; letter-spacing: 0; margin-top: 12px; max-width: 545px; }
 .h90 { font-size: 90px; letter-spacing: -3px; line-height: 83px; }
 .certs-stats { width: 719px; display: flex; flex-direction: column; gap: 36px; }
 .certs-stats .dot { width: 1.265px; height: 1.265px; background: #1f1f1f; opacity: .12; }
@@ -359,7 +360,7 @@ a { color: inherit; text-decoration: none; }
 .wm-imgs { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .collage { position: absolute; top: 0; overflow: hidden; will-change: transform; }
 .js .collage { transform: translateY(2000px); }
-.collage img { position: absolute; }
+.collage img { position: absolute; object-fit: cover; }
 .footer .rule { height: 1px; }
 .footer-cols { width: 100%; padding: 32px; display: flex; align-items: flex-start; justify-content: space-between; flex-shrink: 0; }
 .fbrand { width: 340px; display: flex; flex-direction: column; gap: 8px; }
@@ -643,3 +644,4 @@ a { color: inherit; text-decoration: none; }
 .pp-h .tag { flex: 0 0 auto; font-style: normal; font-weight: 700; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #fff; background: #34a043; border-radius: 14px; padding: 5px 12px; white-space: nowrap; }
 .specs-t dd { transition: opacity .25s ease, transform .25s ease; }
 .specs-t.swap dd { opacity: 0; transform: translateY(6px); }
+.certs-title .h90 { font-size: 72px; line-height: 66px; letter-spacing: -2.5px; }
