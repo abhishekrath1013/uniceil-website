@@ -84,10 +84,8 @@ a { color: inherit; text-decoration: none; }
 .hero-title { will-change: transform, opacity; }
 
 .hero-sub { width: 100%; }
-/* desktop / tablet: hero fills exactly one viewport, ending at the Explore button */
-@media (min-width: 821px) {
-  .hero { min-height: var(--hv); padding-bottom: 36px; justify-content: space-between; }
-}
+/* desktop / tablet: headline a touch larger than the 189px base */
+@media (min-width: 821px) { .hero-title { font-size: 208px; line-height: .9206; letter-spacing: -.05em; } }
 .hero-sub-inner { width: 443px; display: flex; flex-direction: column; gap: 10px; }
 .hero-sub h2 { width: 400px; font-weight: 700; font-size: 20px; line-height: 26px; letter-spacing: -1px; }
 .hero-sub p { font-weight: 400; font-size: 20px; line-height: 30px; }
@@ -406,7 +404,7 @@ a { color: inherit; text-decoration: none; }
 .cta:hover::before, .cta:focus-visible::before { background: #34a043; }
 
 /* ---------- Hero: cycling word ---------- */
-.cycle { position: relative; display: block; height: 174px; overflow: hidden; }
+.cycle { position: relative; display: block; height: .9206em; overflow: hidden; }
 .cycle .w { position: absolute; right: 0; top: 0; white-space: nowrap; transform: translateY(150%); }
 .cycle .w:first-child { transform: none; }
 
