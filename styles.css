@@ -87,7 +87,6 @@ a { color: inherit; text-decoration: none; }
 /* desktop / tablet: hero fills exactly one viewport, ending at the Explore button */
 @media (min-width: 821px) {
   .hero { min-height: var(--hv); padding-bottom: 36px; justify-content: space-between; }
-  .hero-title { --hfs: clamp(90px, calc((var(--hv) - 300px) / 2.76), 189px); font-size: var(--hfs); line-height: .92; letter-spacing: -.05em; }
 }
 .hero-sub-inner { width: 443px; display: flex; flex-direction: column; gap: 10px; }
 .hero-sub h2 { width: 400px; font-weight: 700; font-size: 20px; line-height: 26px; letter-spacing: -1px; }
