@@ -157,7 +157,7 @@
     var wrap = $("#stack");
     if (!wrap) return function () {};
     var cards = $$(".benefit", wrap);
-    var EXTRA = MOBILE ? 6 : 28;                         // px each later card is pulled further left as the section leaves
+    var EXTRA = MOBILE ? 6 : 38;                         // px each later card is pulled further left as the section leaves
     var MARKS = [0, 0.12, 0.46], LEN = 0.3, TAU = 380;   // scroll sets where each card should be; it glides there slowly (TAU ms) so stacking stays fluid
     var val = cards.map(function () { return 0; }), tgt = cards.map(function () { return 0; }), shift = 0, raf = 0, last = 0;
     function draw() {
