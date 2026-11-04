@@ -43,7 +43,7 @@
   /* wall / ceiling / facade cards */
   .brief { gap: 18px; }
   .brief h2 { width: 100%; height: auto; font-size: 30px; line-height: 1.15; letter-spacing: -.04em; padding-top: 10px; }
-  .stack { height: calc(max(520px, var(--hv)) * 3.4); --ext: 40px; }
+  .stack { height: calc(max(520px, var(--hv)) * 2.4); --ext: 40px; }
   .stack-pin { height: max(520px, var(--hv)); }
   .benefit { left: calc(var(--k) * 26px); }
   .benefit-word { --fs: 17cqh; left: 6px; }

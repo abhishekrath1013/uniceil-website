@@ -151,7 +151,7 @@ a { color: inherit; text-decoration: none; }
   width: 1063px; height: 134px; display: flex; flex-direction: column; justify-content: flex-end;
   font-weight: 500; font-size: 55.866px; letter-spacing: -2.3277px; line-height: 1.18;
 }
-.stack { position: relative; width: calc(100% + 32px); margin: 0 -16px; height: calc(max(560px, var(--hv)) * 3.4); }   /* full-bleed: no grey strips either side */
+.stack { position: relative; width: calc(100% + 32px); margin: 0 -16px; height: calc(max(560px, var(--hv)) * 2.4); }   /* full-bleed: no grey strips either side */
 .stack-pin { position: sticky; top: 0; width: 100%; height: max(560px, var(--hv)); overflow: hidden; }
 .benefit {
   position: absolute; top: 0; bottom: 0; right: calc(var(--ext, 200px) * -1); left: calc(var(--k) * 237px);

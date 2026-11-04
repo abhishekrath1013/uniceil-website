@@ -157,33 +157,40 @@
     var wrap = $("#stack");
     if (!wrap) return function () {};
     var cards = $$(".benefit", wrap);
-    var cur = -1, target = 0, raf = 0;
-    var EXTRA = MOBILE ? 6 : 28;                         // px each later card is pulled further left at the end
-    var ZOOM_END = 0.15, STARTS = [0, 0.18, 0.45], LEN = 0.22, SHIFT0 = 0.7, SHIFT1 = 0.86;
-    function draw(p) {
-      var shift = ease(clamp((p - SHIFT0) / (SHIFT1 - SHIFT0), 0, 1));
-      var z = ease(clamp(p / ZOOM_END, 0, 1));
+    var EXTRA = MOBILE ? 6 : 28;                         // px each later card is pulled further left as the section leaves
+    var MARKS = [0, 0.18, 0.5], DUR = 2100;              // a card's slide-in is timed (slow, smooth) once its mark is crossed
+    var val = cards.map(function () { return 0; }), tgt = cards.map(function () { return 0; }), shift = 0, raf = 0, last = 0;
+    function draw() {
       cards.forEach(function (c, k) {
-        if (k === 0) { c.style.transform = "scale(" + (1.1 - 0.1 * z).toFixed(4) + ")"; return; }   // the whole card starts zoomed past the frame
-        var local = ease(clamp((p - STARTS[k]) / LEN, 0, 1));
-        c.style.transform = "translate3d(calc(" + ((1 - local) * 110).toFixed(3) + "% - " + (k * EXTRA * shift).toFixed(2) + "px),0,0)";
+        if (k === 0) { c.style.transform = "none"; return; }
+        var e = ease(val[k]);
+        c.style.transform = "translate3d(calc(" + ((1 - e) * 110).toFixed(3) + "% - " + (k * EXTRA * shift).toFixed(2) + "px),0,0)";
       });
     }
-    function tick() {
-      cur += (target - cur) * 0.06;                      // slow glide behind the scroll
-      if (Math.abs(target - cur) < 0.0004) { cur = target; raf = 0; } else raf = requestAnimationFrame(tick);
-      draw(cur);
+    function tick(t) {
+      var dt = Math.min(64, t - last), moving = false;
+      last = t;
+      for (var k = 1; k < cards.length; k++) {
+        if (val[k] === tgt[k]) continue;
+        val[k] = tgt[k] > val[k] ? Math.min(tgt[k], val[k] + dt / DUR) : Math.max(tgt[k], val[k] - dt / DUR);
+        if (val[k] !== tgt[k]) moving = true;
+      }
+      draw();
+      raf = moving ? requestAnimationFrame(tick) : 0;
     }
     return function () {
       if (!animated) return;
-      var r = wrap.getBoundingClientRect();
-      var travel = r.height - window.innerHeight;
-      target = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
-      if (cur < 0) { cur = target; draw(cur); return; }
-      if (!raf) raf = requestAnimationFrame(tick);
+      var r = wrap.getBoundingClientRect(), vh = window.innerHeight;
+      var travel = r.height - vh;
+      var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
+      var changed = false;
+      for (var k = 1; k < cards.length; k++) { var g = p >= MARKS[k] ? 1 : 0; if (g !== tgt[k]) { tgt[k] = g; changed = true; } }
+      shift = ease(clamp(1 - r.bottom / vh, 0, 1));      // the final pull to the left happens while the section scrolls away
+      draw();
+      if (changed && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
     };
   })();
-  var STACK_MARKS = [0, 0.18 + 0.22 + 0.01, 0.45 + 0.22 + 0.01];   // scroll progress where each card has fully arrived
+  var STACK_MARKS = [0, 0.18 + 0.03, 0.5 + 0.03];   // scroll progress just past where each card is triggered
 
   /* ---- Project slider: slow endless marquee, same-size tiles, hover to grow ---- */
   (function () {
