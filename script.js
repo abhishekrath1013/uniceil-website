@@ -198,7 +198,7 @@
     if (!sl) return;
     var tpl = $$(".sl", sl).map(function (el) { return el.innerHTML; });
     var n = tpl.length, COPIES = 2, L = n * COPIES;
-    var TILE_W = MOBILE ? 200 : 290.413, TILE_H = MOBILE ? 166 : 241.86, GAP = MOBILE ? 14 : 24, CAP = 15.543 + 22, CX = (sl.clientWidth || 1402) / 2, CY = MOBILE ? 145 : 209;
+    var TILE_W = MOBILE ? 200 : 290.413, TILE_H = MOBILE ? 166 : 241.86, GAP = MOBILE ? 14 : 24, CAP = 15.543 + 22, CX = (sl.clientWidth || 1402) / 2, CY = MOBILE ? 145 : 259;
     var PITCH = TILE_W + GAP;
     var SPEED = animated ? 0.15 : 0;                   // tiles per second (~47px/s)
 
