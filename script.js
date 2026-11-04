@@ -158,7 +158,7 @@
     if (!wrap) return function () {};
     var cards = $$(".benefit", wrap);
     var EXTRA = MOBILE ? 6 : 28;                         // px each later card is pulled further left as the section leaves
-    var MARKS = [0, 0.18, 0.5], DUR = 2100;              // a card's slide-in is timed (slow, smooth) once its mark is crossed
+    var MARKS = [0, 0.12, 0.46], LEN = 0.3, TAU = 380;   // scroll sets where each card should be; it glides there slowly (TAU ms) so stacking stays fluid
     var val = cards.map(function () { return 0; }), tgt = cards.map(function () { return 0; }), shift = 0, raf = 0, last = 0;
     function draw() {
       cards.forEach(function (c, k) {
@@ -172,7 +172,7 @@
       last = t;
       for (var k = 1; k < cards.length; k++) {
         if (val[k] === tgt[k]) continue;
-        val[k] = tgt[k] > val[k] ? Math.min(tgt[k], val[k] + dt / DUR) : Math.max(tgt[k], val[k] - dt / DUR);
+        val[k] += (tgt[k] - val[k]) * (1 - Math.exp(-dt / TAU)); if (Math.abs(tgt[k] - val[k]) < 0.0006) val[k] = tgt[k];
         if (val[k] !== tgt[k]) moving = true;
       }
       draw();
@@ -184,13 +184,13 @@
       var travel = r.height - vh;
       var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
       var changed = false;
-      for (var k = 1; k < cards.length; k++) { var g = p >= MARKS[k] ? 1 : 0; if (g !== tgt[k]) { tgt[k] = g; changed = true; } }
+      for (var k = 1; k < cards.length; k++) { var g = clamp((p - MARKS[k]) / LEN, 0, 1); if (g !== tgt[k]) { tgt[k] = g; changed = true; } }
       shift = ease(clamp(1 - r.bottom / vh, 0, 1));      // the final pull to the left happens while the section scrolls away
       draw();
       if (changed && !raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
     };
   })();
-  var STACK_MARKS = [0, 0.18 + 0.03, 0.5 + 0.03];   // scroll progress just past where each card is triggered
+  var STACK_MARKS = [0, 0.12 + 0.3 + 0.02, 0.46 + 0.3 + 0.02];   // scroll progress where each card has fully arrived
 
   /* ---- Project slider: slow endless marquee, same-size tiles, hover to grow ---- */
   (function () {
@@ -214,7 +214,7 @@
     var y = CY - (TILE_H + CAP) / 2;
 
     var pos = Math.floor(n / 2), dragging = false, visible = true, last = 0, sx = 0, sp = 0, hover = false, spd = SPEED;
-    var px = null, py = null, mx = null, scl = items.map(function () { return 1; }), MAXS = MOBILE ? 1 : 1.42, RAD = PITCH * 0.95;
+    var px = null, py = null, mx = null, scl = items.map(function () { return 1; }), MAXS = MOBILE ? 1 : 1.42, EFF = PITCH * 3.4, phs = items.map(function (el) { return $(".ph", el); });
     /* dock-style magnification: tiles near the pointer grow smoothly and push their neighbours aside.
        The pointer is re-tested against the slider every frame, so scrolling away from it eases the tiles back instead of snapping. */
     function render() {
@@ -228,8 +228,8 @@
         d = (((i - pos + L / 2) % L) + L) % L - L / 2;
         ds.push(d);
         var t = 1;
-        if (mx !== null) { var dx = CX + d * PITCH - mx; t = 1 + (MAXS - 1) * Math.exp(-(dx * dx) / (RAD * RAD)); }
-        scl[i] += (t - scl[i]) * 0.14;
+        if (mx !== null) { var dx = CX + d * PITCH - mx; if (Math.abs(dx) < EFF / 2) t = 1 + (MAXS - 1) * (1 - Math.cos(((dx + EFF / 2) / EFF) * 2 * Math.PI)) / 2; }   // macOS-dock cosine falloff
+        scl[i] += (t - scl[i]) * (mx !== null ? 0.2 : 0.12);
         if (scl[i] > bestS) { bestS = scl[i]; j = i; }
       }
       for (i = 0; i < L; i++) {
@@ -240,7 +240,8 @@
           for (k = 0; k < L; k++) if (ds[k] > Math.min(ds[i], ds[j]) && ds[k] < Math.max(ds[i], ds[j])) shift += (scl[k] - 1) * TILE_W;
           shift *= dir;
         }
-        items[i].style.transform = "translate3d(" + (CX + ds[i] * PITCH - TILE_W / 2 + shift) + "px," + y + "px,0) scale(" + scl[i].toFixed(3) + ")";
+        items[i].style.transform = "translate3d(" + (CX + ds[i] * PITCH - TILE_W / 2 + shift) + "px," + y + "px,0)";
+        phs[i].style.transform = "scale(" + scl[i].toFixed(3) + ")";   // only the picture grows; caption keeps its size
         items[i].style.zIndex = String(Math.round(scl[i] * 100));
       }
     }
