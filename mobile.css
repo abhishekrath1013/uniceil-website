@@ -43,11 +43,11 @@
   /* wall / ceiling / facade cards */
   .brief { gap: 18px; }
   .brief h2 { width: 100%; height: auto; font-size: 30px; line-height: 1.15; letter-spacing: -.04em; padding-top: 10px; }
-  .stack { height: calc(max(520px, var(--hv)) * 3); }
+  .stack { height: calc(max(520px, var(--hv)) * 4.6); --ext: 40px; }
   .stack-pin { height: max(520px, var(--hv)); }
   .benefit { left: calc(var(--k) * 26px); }
   .benefit-word { --fs: 17cqh; left: 6px; }
-  .benefit-copy { left: 40px; right: 16px; bottom: 28px; width: auto; gap: 16px; }
+  .benefit-copy { left: 40px; right: calc(16px + var(--ext, 40px)); bottom: 28px; width: auto; gap: 16px; }
   .benefit-copy .d { font-size: 17px; line-height: 1.32; }
   .benefit-copy .a { font-size: 12px; letter-spacing: .8px; }
 

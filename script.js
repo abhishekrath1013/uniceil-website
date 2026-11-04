@@ -156,20 +156,36 @@
   var stack = (function () {
     var wrap = $("#stack");
     if (!wrap) return function () {};
-    var cards = $$(".benefit", wrap);
+    var cards = $$(".benefit", wrap), pics = cards.map(function (c) { return $(".pic", c); });
+    var cur = -1, target = 0, raf = 0;
+    var EXTRA = MOBILE ? 6 : 28;                         // px each later card is pulled further left at the end
+    var ZOOM_END = 0.12, STARTS = [0, 0.14, 0.44], LEN = 0.26, SHIFT0 = 0.74, SHIFT1 = 0.92;
+    function draw(p) {
+      var shift = ease(clamp((p - SHIFT0) / (SHIFT1 - SHIFT0), 0, 1));
+      var z = ease(clamp(p / ZOOM_END, 0, 1));
+      cards.forEach(function (c, k) {
+        var local = k === 0 ? 1 : ease(clamp((p - STARTS[k]) / LEN, 0, 1));
+        var x = k === 0 ? 0 : (1 - local) * 110;
+        c.style.transform = "translate3d(calc(" + x.toFixed(3) + "% - " + (k * EXTRA * shift).toFixed(2) + "px),0,0)";
+        var s = k === 0 ? 1.28 - 0.28 * z : 1.18 - 0.18 * local;
+        pics[k].style.transform = "scale(" + s.toFixed(4) + ")";
+      });
+    }
+    function tick() {
+      cur += (target - cur) * 0.14;
+      if (Math.abs(target - cur) < 0.0004) { cur = target; raf = 0; } else raf = requestAnimationFrame(tick);
+      draw(cur);
+    }
     return function () {
-      if (!animated) { cards.forEach(function (c) { c.classList.add("on"); }); return; }
+      if (!animated) return;
       var r = wrap.getBoundingClientRect();
       var travel = r.height - window.innerHeight;
-      var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
-      cards.forEach(function (c, k) {
-        if (k === 0) return;
-        // card k arrives at k/(n-1) of the runway, minus a lead so it has finished by then
-        var mark = (k / (cards.length - 1)) * 0.82 - 0.12;
-        c.classList.toggle("on", p >= mark);
-      });
+      target = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
+      if (cur < 0) { cur = target; draw(cur); return; }
+      if (!raf) raf = requestAnimationFrame(tick);
     };
   })();
+  var STACK_MARKS = [0, 0.14 + 0.26 + 0.01, 0.44 + 0.26 + 0.01];   // scroll progress where each card has fully arrived
 
   /* ---- Project slider: slow endless marquee, same-size tiles, hover to grow ---- */
   (function () {
@@ -193,17 +209,23 @@
     var y = CY - (TILE_H + CAP) / 2;
 
     var pos = Math.floor(n / 2), dragging = false, visible = true, last = 0, sx = 0, sp = 0, hover = false, spd = SPEED;
-    var mx = null, scl = items.map(function () { return 1; }), MAXS = MOBILE ? 1 : 1.42, RAD = PITCH * 0.95;
-    /* dock-style magnification: tiles near the pointer grow smoothly and push their neighbours aside */
+    var px = null, py = null, mx = null, scl = items.map(function () { return 1; }), MAXS = MOBILE ? 1 : 1.42, RAD = PITCH * 0.95;
+    /* dock-style magnification: tiles near the pointer grow smoothly and push their neighbours aside.
+       The pointer is re-tested against the slider every frame, so scrolling away from it eases the tiles back instead of snapping. */
     function render() {
-      var ds = [], tg = [], j = -1, best = 1e9, i, d;
+      var ds = [], j = -1, bestS = 1.002, i, d;
+      if (px !== null) {
+        var rc = sl.getBoundingClientRect();
+        if (px >= rc.left && px <= rc.right && py >= rc.top && py <= rc.bottom) { mx = (px - rc.left) / zoom; hover = true; }
+        else { mx = null; hover = false; }
+      }
       for (i = 0; i < L; i++) {
         d = (((i - pos + L / 2) % L) + L) % L - L / 2;
         ds.push(d);
         var t = 1;
-        if (mx !== null) { var dx = CX + d * PITCH - mx; t = 1 + (MAXS - 1) * Math.exp(-(dx * dx) / (RAD * RAD)); if (Math.abs(dx) < best) { best = Math.abs(dx); j = i; } }
-        tg.push(t);
-        scl[i] += (t - scl[i]) * 0.18;
+        if (mx !== null) { var dx = CX + d * PITCH - mx; t = 1 + (MAXS - 1) * Math.exp(-(dx * dx) / (RAD * RAD)); }
+        scl[i] += (t - scl[i]) * 0.14;
+        if (scl[i] > bestS) { bestS = scl[i]; j = i; }
       }
       for (i = 0; i < L; i++) {
         var shift = 0;
@@ -231,15 +253,14 @@
       try { sl.setPointerCapture(e.pointerId); } catch (err) {}
     });
     sl.addEventListener("pointermove", function (e) {
-      if (e.pointerType !== "touch") mx = (e.clientX - sl.getBoundingClientRect().left) / zoom;
       if (!dragging) return;
       pos = (((sp - (e.clientX - sx) / zoom / PITCH) % L) + L) % L;
     });
     function end() { dragging = false; sl.classList.remove("drag"); }
     sl.addEventListener("pointerup", end);
     sl.addEventListener("pointercancel", end);
-    sl.addEventListener("pointerenter", function (e) { if (e.pointerType !== "touch") hover = true; });
-    sl.addEventListener("pointerleave", function () { hover = false; mx = null; });
+    document.addEventListener("pointermove", function (e) { if (e.pointerType === "touch") { px = null; return; } px = e.clientX; py = e.clientY; }, { passive: true });
+    document.documentElement.addEventListener("pointerleave", function () { px = null; py = null; mx = null; hover = false; });
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (en) { visible = en[0].isIntersecting; }, { rootMargin: "200px 0px" }).observe(sl);
     }
@@ -408,8 +429,7 @@
         c.addEventListener("click", function (e) {
           if (e.target.closest("a")) return;
           var r = wrap.getBoundingClientRect(), travel = r.height - window.innerHeight;
-          var p = k === 0 ? 0 : (k / (n - 1)) * 0.82 - 0.12 + 0.04;        // just past the mark where this panel has slid in
-          if (k === n - 1) p = Math.max(p, 0.98 * 0.82 - 0.12 + 0.04);
+          var p = STACK_MARKS[k] || 0;
           go(window.scrollY + r.top + p * travel);
         });
       });
@@ -422,10 +442,11 @@
           if (e.target.closest("a")) return;
           var rr = row.getBoundingClientRect(), step = parseFloat(getComputedStyle(row).getPropertyValue("--step")) || 0;
           if (e.clientY - rr.top > Math.max(step, 60) * zoom) return;        // only the teaser strip
-          var pr = ps.getBoundingClientRect();
-          var pitch = rows[rows.length - 1].getBoundingClientRect().height + parseFloat(getComputedStyle(ps).rowGap) * zoom;   // last row is never scaled
-          var cs = getComputedStyle(row), stuck = (parseFloat(cs.top) + parseFloat(cs.marginTop)) * zoom;
-          go(window.scrollY + pr.top + k * pitch - stuck);
+          var pr = ps.getBoundingClientRect(), pcs = getComputedStyle(ps);
+          var h = rows[0].getBoundingClientRect().height, g = parseFloat(pcs.rowGap) * zoom, st = (parseFloat(pcs.getPropertyValue("--step")) || 0) * zoom;
+          var natural = k * (h + g) - (k * (k - 1) / 2) * st;                // each earlier row's negative bottom margin pulls the next one up
+          var stuck = parseFloat(getComputedStyle(row).top) * zoom;
+          go(window.scrollY + pr.top + natural - stuck);
         });
       });
     }
