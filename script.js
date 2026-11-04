@@ -156,23 +156,21 @@
   var stack = (function () {
     var wrap = $("#stack");
     if (!wrap) return function () {};
-    var cards = $$(".benefit", wrap), pics = cards.map(function (c) { return $(".pic", c); });
+    var cards = $$(".benefit", wrap);
     var cur = -1, target = 0, raf = 0;
     var EXTRA = MOBILE ? 6 : 28;                         // px each later card is pulled further left at the end
-    var ZOOM_END = 0.12, STARTS = [0, 0.14, 0.44], LEN = 0.26, SHIFT0 = 0.74, SHIFT1 = 0.92;
+    var ZOOM_END = 0.15, STARTS = [0, 0.18, 0.45], LEN = 0.22, SHIFT0 = 0.7, SHIFT1 = 0.86;
     function draw(p) {
       var shift = ease(clamp((p - SHIFT0) / (SHIFT1 - SHIFT0), 0, 1));
       var z = ease(clamp(p / ZOOM_END, 0, 1));
       cards.forEach(function (c, k) {
-        var local = k === 0 ? 1 : ease(clamp((p - STARTS[k]) / LEN, 0, 1));
-        var x = k === 0 ? 0 : (1 - local) * 110;
-        c.style.transform = "translate3d(calc(" + x.toFixed(3) + "% - " + (k * EXTRA * shift).toFixed(2) + "px),0,0)";
-        var s = k === 0 ? 1.28 - 0.28 * z : 1.18 - 0.18 * local;
-        pics[k].style.transform = "scale(" + s.toFixed(4) + ")";
+        if (k === 0) { c.style.transform = "scale(" + (1.1 - 0.1 * z).toFixed(4) + ")"; return; }   // the whole card starts zoomed past the frame
+        var local = ease(clamp((p - STARTS[k]) / LEN, 0, 1));
+        c.style.transform = "translate3d(calc(" + ((1 - local) * 110).toFixed(3) + "% - " + (k * EXTRA * shift).toFixed(2) + "px),0,0)";
       });
     }
     function tick() {
-      cur += (target - cur) * 0.14;
+      cur += (target - cur) * 0.06;                      // slow glide behind the scroll
       if (Math.abs(target - cur) < 0.0004) { cur = target; raf = 0; } else raf = requestAnimationFrame(tick);
       draw(cur);
     }
@@ -185,7 +183,7 @@
       if (!raf) raf = requestAnimationFrame(tick);
     };
   })();
-  var STACK_MARKS = [0, 0.14 + 0.26 + 0.01, 0.44 + 0.26 + 0.01];   // scroll progress where each card has fully arrived
+  var STACK_MARKS = [0, 0.18 + 0.22 + 0.01, 0.45 + 0.22 + 0.01];   // scroll progress where each card has fully arrived
 
   /* ---- Project slider: slow endless marquee, same-size tiles, hover to grow ---- */
   (function () {
