@@ -112,6 +112,13 @@
   var panel = document.querySelector(".pp-body .pp-panel");
   var split = document.querySelector(".pp-body .pp-split");
 
+  var panelMode = false, panelW = 600;
+  function slideFrom(role, snap) {
+    if (!panelMode) return null;
+    var d = panelW * 0.6 * (role === "right" ? 1 : -1);
+    return { l: snap.l + d, t: snap.t, w: snap.w, h: snap.h, f: snap.f };
+  }
+
   function update() {
     var z = parseFloat(getComputedStyle(root).getPropertyValue("--zoom")) || 1;
     var vw = window.innerWidth, vh = window.innerHeight;
@@ -167,8 +174,10 @@
     if (pitchCur === null) pitchCur = PRODUCTS[current].pitch;
     if (B && B.views.main) {
       var m = B.views.main;
-      m.yaw = lerp(0.95, 1.12, s);
-      m.pitch = lerp(0.7, pitchCur, s);
+      m.yaw = lerp(2.2, 1.12, s);
+      m.pitch = lerp(0.6, pitchCur, s);
+      m.clip = { left: cx0, top: cy0, width: cw, height: ch };
+      panelMode = s > 0.9; panelW = tg.w;
       m.fit = cur.fit;
       m.hit = { left: cur.cx - cur.w / 2, right: cur.cx + cur.w / 2, top: cur.cy - cur.h / 2, bottom: cur.cy + cur.h / 2 };
     }
@@ -180,6 +189,8 @@
     ticking = true;
     requestAnimationFrame(function () { ticking = false; update(); });
   }
+  window.addEventListener("b3d-loaded", function () { if (window.Baffle3D) window.Baffle3D.slideFrom = slideFrom; });
+  if (window.Baffle3D) window.Baffle3D.slideFrom = slideFrom;
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll);
   window.addEventListener("load", update);
