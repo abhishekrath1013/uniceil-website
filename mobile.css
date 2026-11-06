@@ -215,3 +215,14 @@
   .apps > div:nth-child(n+4):nth-child(-n+4) { border-bottom: 1px solid #b9bcba; }
   .apps span { font-size: 11px; }
 }
+
+@media (max-width: 820px) {
+  .pp-hero { height: calc(var(--ph) * 3); }
+  .pp-body { margin-top: calc(var(--ph) * -.3); padding: 0 16px 56px; }
+  .pp-body .pp-split { flex-direction: column; gap: 18px; }
+  .pp-body .pp-panel { flex: none; width: 100%; top: 76px; height: calc(var(--ph) * .4); z-index: 2; }
+  .pp-body .pp-info { padding-top: 24px; width: 100%; }
+  .pp-body .pp-h2 { margin-top: 56px; }
+  .pp-body .why li { padding: 20px 0; }
+  .pp-body .apps > div { height: 104px; }
+}

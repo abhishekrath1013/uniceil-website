@@ -663,3 +663,29 @@ a { color: inherit; text-decoration: none; }
 
 .js .row, .js .benefit { cursor: pointer; }
 .js .benefit a { cursor: pointer; }
+
+/* ---------- Baffle: hero card shrinks into a fixed left panel; right column scrolls ---------- */
+.pp-hero { height: calc(var(--ph) * 3.2); background: none; }
+.pp-pin { background: none; }
+.stage.pp { background: #fff; }
+.pp-card {
+  position: fixed; z-index: 1; left: 0; top: 0; width: 100vw; height: 100vh; pointer-events: none; overflow: hidden;
+  background-color: #f2f4f3; background-size: 86px 86px; background-position: 0 40px;
+  background-image: linear-gradient(rgba(31,31,31,.075) 1px, transparent 1px), linear-gradient(90deg, rgba(31,31,31,.075) 1px, transparent 1px);
+}
+.pp-body { position: relative; margin-top: calc(var(--ph) * -.45); padding: 0 51px 96px; background: #fff; }
+.pp-body .pp-split { display: flex; gap: 35px; height: auto; align-items: flex-start; }
+.pp-body .pp-panel { position: sticky; top: 96px; flex: 0 0 min(643px, 46%); height: calc(var(--ph) - 132px); }
+.pp-body .pp-info { display: block; flex: 1 1 0; padding-top: 96px; }
+.pp-body .pp-h { margin-bottom: 18px; }
+.pp-body .pp-h2 { margin-top: 110px; }
+.pp-body .why { display: block; flex: none; }
+.pp-body .why li { flex: none; padding: 30px 0 34px; align-items: start; }
+.pp-body .why .ck { align-self: start; margin-top: 3px; }
+.pp-body .apps { grid-template-rows: none; }
+.pp-body .apps > div { height: 160px; }
+.pp-body .pp-k { margin: 56px 0 16px; }
+
+/* depth: soft contact + ambient shadow under the 3D products */
+.b3d-canvas { filter: drop-shadow(0 26px 22px rgba(20,24,22,.26)) drop-shadow(0 6px 8px rgba(20,24,22,.18)); }
+.js .pp-body .pp-panel { background: none; }

@@ -12,13 +12,13 @@
 </head>
 <body>
 
+<div class="pp-card" aria-hidden="true"></div>
+
 <main class="stage pp" id="stage">
 
   <!-- Hero: title + product, scrolls into the large view with caption -->
   <section class="pp-hero" id="pphero">
     <div class="pp-pin">
-      <div class="pp-grid"></div>
-
       <header class="pp-nav">
         <a class="nav-logo" href="index.html" aria-label="Uniceil — home"><img src="assets/logo.png" alt="Uniceil — Wall · Ceiling · Facade"></a>
         <button class="menu-btn" type="button" aria-label="Open menu" aria-haspopup="dialog" aria-controls="menu"><img src="assets/menu.svg" alt=""></button>
@@ -46,10 +46,10 @@
     </div>
   </section>
 
-  <!-- Why it's specified -->
-  <section class="pp-sec" id="why">
+  <!-- Body: the hero card shrinks into the fixed left panel; the right column scrolls -->
+  <section class="pp-body" id="why">
     <div class="pp-split">
-      <div class="pp-panel rv"><div class="pp-anchor" aria-hidden="true"></div></div>
+      <div class="pp-panel"><div class="pp-anchor" aria-hidden="true"></div></div>
       <div class="pp-info">
         <div class="pp-h rv"><h2>Why It’s Specified</h2><i></i></div>
         <ul class="why">
@@ -60,16 +60,8 @@
           <li class="rv" style="--i:4"><svg class="ck" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="13"/><path d="M7.4 13.4l3.8 3.8 7.4-8"/></svg><h3>One finish library</h3><p>Matte, gloss and wood-look laminate finishes, co-extruded through every configuration, so colour never sits as a coating.</p></li>
           <li class="rv" style="--i:5"><svg class="ck" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="13"/><path d="M7.4 13.4l3.8 3.8 7.4-8"/></svg><h3>Matched trims and connectors</h3><p>Corner trims, end caps and carriers share one range across Linear, In-Fill and Baffle.</p></li>
         </ul>
-      </div>
-    </div>
-  </section>
 
-  <!-- Specifications -->
-  <section class="pp-sec" id="specifications">
-    <div class="pp-split">
-      <div class="pp-panel rv"><div class="pp-anchor" aria-hidden="true"></div></div>
-      <div class="pp-info">
-        <div class="pp-h rv"><h2>Specifications</h2><em class="tag" id="spec-tag">Baffle Direct</em><i></i></div>
+        <div class="pp-h pp-h2 rv" id="specifications"><h2>Specifications</h2><em class="tag" id="spec-tag">Baffle Direct</em><i></i></div>
         <dl class="specs-t">
           <div class="rv" style="--i:0"><dt><b style="background:#2d6a3f"></b>Material</dt><dd data-k="material">100% recyclable uPVC</dd></div>
           <div class="rv" style="--i:1"><dt><b style="background:#e05c38"></b>Configurations</dt><dd data-k="config">Linear · In-Fill · Baffle blades</dd></div>

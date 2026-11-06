@@ -1,5 +1,5 @@
-// Baffle product page: hero scene, then the selected baffle travels with the scroll
-// through "Why It's Specified" and "Specifications" (a fixed 3D view driven by scroll).
+// Baffle product page: the hero card shrinks into a fixed left panel; the product rotates with the
+// scroll while "Why It's Specified" and "Specifications" scroll on the right.
 (function () {
   var root = document.documentElement;
   var sc = document.getElementById("pphero");
@@ -7,14 +7,13 @@
   var pin = sc.querySelector(".pp-pin"), title = sc.querySelector(".pp-title");
   var vl = sc.querySelector(".pp-var.l"), vr = sc.querySelector(".pp-var.r"), cap = sc.querySelector(".pp-cap");
   var trav = document.querySelector(".pp-trav");
-  var anchors = Array.prototype.slice.call(document.querySelectorAll(".pp-anchor"));
 
   function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
   function lerp(a, b, t) { return a + (b - a) * t; }
   function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
   function smooth(t) { return t * t * (3 - 2 * t); }
 
-  var HERO_FIT = 1.0, PANEL_FIT = 0.95;
+  var HERO_FIT = 1.0, PANEL_FIT = 1.3;
 
   // Per-product data. `pitch` tilts the main model so its lighting line faces the viewer.
   var PRODUCTS = {
@@ -98,43 +97,65 @@
     else if (e.key === "ArrowLeft") window.Baffle3D.select("left");
   });
 
+  var card = document.querySelector(".pp-card");
+  var body = document.getElementById("why");
+  var panel = document.querySelector(".pp-body .pp-panel");
+  var split = document.querySelector(".pp-body .pp-split");
+
   function update() {
     var z = parseFloat(getComputedStyle(root).getPropertyValue("--zoom")) || 1;
     var vw = window.innerWidth, vh = window.innerHeight;
+    var mob = vw <= 820;
     var r = sc.getBoundingClientRect(), travel = r.height - vh;
     var p = travel > 0 ? clamp(-r.top / travel, 0, 1) : 0;
-    var t = ease(clamp(p / 0.7, 0, 1));
+    var t = ease(clamp(p / 0.35, 0, 1));            // intro: title leaves, side products + caption arrive
+    var s = smooth(clamp((p - 0.55) / 0.45, 0, 1)); // hero card shrinks into the left panel
 
     title.style.transform = "translateY(" + (-t * 150) + "px)";
     title.style.opacity = String(1 - clamp(t * 1.6, 0, 1));
     vl.style.transform = "translateX(" + (-(1 - t) * 340) + "px)";
     vr.style.transform = "translateX(" + ((1 - t) * 340) + "px)";
-    cap.classList.toggle("on", t > 0.6);
-    if (hint) hint.classList.toggle("on", t > 0.6);
+    var fade = String(1 - clamp(s * 3, 0, 1));
+    vl.style.opacity = vr.style.opacity = fade;
+    cap.classList.toggle("on", t > 0.6 && s < 0.12);
+    if (hint) hint.classList.toggle("on", t > 0.6 && s < 0.12);
 
-    // --- the traveller: hero position -> panel 1 -> panel 2, all in real viewport pixels
-    var mob = vw <= 820;
-    var hh = mob ? vw * 0.62 : Math.max(560 * z, vh) * 0.62, s = lerp(0.92, 0.9, t);
-    var cur = { cx: vw / 2, cy: lerp(0.56, mob ? 0.33 : 0.37, t) * vh, w: hh * 1.25 * s, h: hh * s, fit: mob ? 1.0 : lerp(1.28, 1.25, t) };
-    for (var i = 0; i < anchors.length; i++) {
-      var a = anchors[i].getBoundingClientRect();
-      var u = smooth(clamp(1 - a.top / vh, 0, 1));
-      if (u <= 0) continue;
-      cur = {
-        cx: lerp(cur.cx, a.left + a.width / 2, u), cy: lerp(cur.cy, a.top + a.height / 2, u),
-        w: lerp(cur.w, a.width, u), h: lerp(cur.h, a.height, u), fit: lerp(cur.fit, mob ? 0.8 : PANEL_FIT, u),
-      };
-    }
+    // --- target: the sticky left panel (stuck position, or following it out at the end)
+    var pr = panel.getBoundingClientRect(), PT = mob ? 76 : 96 * z;
+    var tg = { x: pr.left, y: Math.min(pr.top, PT), w: pr.width, h: pr.height };
+
+    // --- grey grid card: full screen -> panel
+    var cx0 = lerp(0, tg.x, s), cy0 = lerp(0, tg.y, s), cw = lerp(vw, tg.w, s), ch = lerp(vh, tg.h, s);
+    card.style.left = cx0 + "px"; card.style.top = cy0 + "px";
+    card.style.width = cw + "px"; card.style.height = ch + "px";
+    card.style.borderRadius = lerp(0, 16 * z, s) + "px";
+    var gs = lerp(86, 59, s) * z;
+    card.style.backgroundSize = gs + "px " + gs + "px";
+
+    // --- the 3D product: hero position -> centred in the panel
+    var hh = mob ? vw * 0.62 : Math.max(560 * z, vh) * 0.62, k = lerp(0.92, 0.9, t);
+    var hero = { cx: vw / 2, cy: lerp(0.56, mob ? 0.33 : 0.37, t) * vh, w: hh * 1.25 * k, h: hh * k, fit: mob ? 1.0 : lerp(1.28, 1.25, t) };
+    var pw = Math.min(tg.w * 0.96, tg.h * 0.8 * 1.25), ph = pw / 1.25;
+    var cur = {
+      cx: lerp(hero.cx, tg.x + tg.w / 2, s), cy: lerp(hero.cy, tg.y + tg.h / 2, s),
+      w: lerp(hero.w, pw, s), h: lerp(hero.h, ph, s), fit: lerp(hero.fit, mob ? 0.8 : PANEL_FIT, s),
+    };
     trav.style.left = (cur.cx - cur.w / 2) + "px";
     trav.style.top = (cur.cy - cur.h / 2) + "px";
     trav.style.width = cur.w + "px";
     trav.style.height = cur.h + "px";
-    // spin once while travelling to the cards, then rest at a different angle
-    var tu = anchors.length ? smooth(clamp(1 - anchors[0].getBoundingClientRect().top / vh, 0, 1)) : 0;
+
+    // --- rotation follows the scroll: a little during the shrink, then continuously while the right column scrolls
+    var sr = split.getBoundingClientRect(), span = sr.height - pr.height;
+    var q = span > 0 ? clamp((PT - sr.top) / span, 0, 1) : 0;
     var B = window.Baffle3D;
     if (pitchCur === null) pitchCur = PRODUCTS[current].pitch;
-    if (B && B.views.main) { B.views.main.yaw = 1.12 + tu * (Math.PI * 2 - 0.5); B.views.main.pitch = pitchCur + (pitchCur > 0 ? -0.1 * tu : 0); }
-    if (B && B.views.main) B.views.main.fit = cur.fit;
+    if (B && B.views.main) {
+      var m = B.views.main;
+      m.yaw = 1.12 + (s * 0.9 + q * 3.1) * Math.PI;
+      m.pitch = pitchCur + (pitchCur > 0 ? -0.1 * s : 0);
+      m.fit = cur.fit;
+    }
   }
 
   var ticking = false;
