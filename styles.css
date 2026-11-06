@@ -188,8 +188,9 @@ a { color: inherit; text-decoration: none; }
 
 /* ---------- Project slider ---------- */
 .slider { width: 1402px; height: 444px; position: relative; }
-.sl { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; gap: 15.543px; width: 290.413px; user-select: none; will-change: transform; }
-.sl .ph { position: relative; width: 100%; height: 241.86px; overflow: hidden; transform-origin: 50% 100%; }
+.sl { position: absolute; left: 0; top: 0; width: 290.413px; user-select: none; will-change: transform; }
+.sl .sw { display: flex; flex-direction: column; gap: 15.543px; width: 100%; transition: transform .34s cubic-bezier(.2, .8, .2, 1); }
+.sl .ph { position: relative; width: 100%; height: 241.86px; overflow: hidden; transform-origin: 50% 100%; transition: transform .34s cubic-bezier(.2, .8, .2, 1); }
 .sl .ph .fill { user-select: none; -webkit-user-drag: none; }
 .sl .ph .crop { position: absolute; inset: 0; overflow: hidden; }
 .sl .ph .crop img { position: absolute; -webkit-user-drag: none; }

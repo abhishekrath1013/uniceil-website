@@ -235,3 +235,4 @@
   .pp-hint2 .sub { font-size: 11px; }
 }
 @media (max-width: 820px) { .pp-hint.pp-hint2 { zoom: 1; } }
+@media (max-width: 820px) { .sl .sw { gap: 12px; } }

@@ -203,52 +203,58 @@
     var SPEED = animated ? 0.15 : 0;                   // tiles per second (~47px/s)
 
     sl.textContent = "";
-    var items = [];
+    var items = [], sws = [];
     for (var i = 0; i < L; i++) {
       var el = document.createElement("figure");
       el.className = "sl";
-      el.innerHTML = tpl[i % n];
+      el.innerHTML = '<div class="sw">' + tpl[i % n] + "</div>";      // .sw takes the push-aside shift, .ph takes the scale (both CSS-transitioned)
       sl.appendChild(el);
-      items.push(el);
+      items.push(el); sws.push(el.firstChild);
     }
     var y = CY - (TILE_H + CAP) / 2;
 
     var pos = Math.floor(n / 2), dragging = false, visible = true, last = 0, sx = 0, sp = 0, hover = false, spd = SPEED;
-    var px = null, py = null, mx = null, scl = items.map(function () { return 1; }), SC_ACTIVE = MOBILE ? 1 : 1.25, SC_NEAR = MOBILE ? 1 : 1.1, phs = items.map(function (el) { return $(".ph", el); });
-    /* dock-style magnification (ported from the marqdock demo): hovered tile + neighbours grow and push the rest aside.
-       The pointer is re-tested against the slider every frame, so scrolling away from it eases the tiles back instead of snapping. */
-    function render() {
-      var ds = [], j = -1, bestS = 1.002, i, d;
-      if (px !== null) {
-        var rc = sl.getBoundingClientRect();
-        if (px >= rc.left && px <= rc.right && py >= rc.top && py <= rc.bottom) { mx = (px - rc.left) / zoom; hover = true; }
-        else { mx = null; hover = false; }
-      }
-      /* marqdock-style fish-eye: the tile under the pointer is "active" (1.25x), its immediate neighbours get 1.1x, the rest stay 1x */
-      var act = -1, best = PITCH / 2;
+    var px = null, py = null, SC_ACTIVE = MOBILE ? 1 : 1.25, SC_NEAR = MOBILE ? 1 : 1.1, phs = items.map(function (el) { return $(".ph", el); });
+    var rc = null, curAct = -2, ds = new Array(L);
+    function refreshRect() { rc = sl.getBoundingClientRect(); }
+    window.addEventListener("scroll", refreshRect, { passive: true });
+    window.addEventListener("resize", refreshRect);
+    refreshRect();
+
+    /* dock-style magnification (ported from the marqdock demo): the hovered tile + its neighbours grow and push the rest aside.
+       Smoothness comes from the compositor: only the marquee position is written every frame; scale and push-aside are set once per
+       hover change and animated by CSS transitions (same easing as the demo), so there is no per-frame style churn or layout reads. */
+    function setHover(act) {
+      var i, k, j = act, gap, sc = [], shift;
       for (i = 0; i < L; i++) {
-        d = (((i - pos + L / 2) % L) + L) % L - L / 2;
-        ds.push(d);
-        if (mx !== null) { var adx = Math.abs(CX + d * PITCH - mx); if (adx < best) { best = adx; act = i; } }
-      }
-      for (i = 0; i < L; i++) {
-        var t = 1;
-        if (act >= 0) { var gap = Math.round(Math.abs(ds[i] - ds[act])); t = gap === 0 ? SC_ACTIVE : gap === 1 ? SC_NEAR : 1; }
-        scl[i] += (t - scl[i]) * 0.2;                // eases like the dock's .28s cubic-bezier(.2,.8,.2,1)
-        if (scl[i] > bestS) { bestS = scl[i]; j = i; }
+        gap = act < 0 ? 9 : Math.round(Math.abs(ds[i] - ds[act]));
+        sc.push(gap === 0 ? SC_ACTIVE : gap === 1 ? SC_NEAR : 1);
       }
       for (i = 0; i < L; i++) {
-        var shift = 0;
+        shift = 0;
         if (j >= 0 && i !== j) {
-          var dir = ds[i] > ds[j] ? 1 : -1, k;
-          shift = (scl[j] - 1) * TILE_W / 2 + (scl[i] - 1) * TILE_W / 2;
-          for (k = 0; k < L; k++) if (ds[k] > Math.min(ds[i], ds[j]) && ds[k] < Math.max(ds[i], ds[j])) shift += (scl[k] - 1) * TILE_W;
+          var dir = ds[i] > ds[j] ? 1 : -1;
+          shift = (sc[j] - 1) * TILE_W / 2 + (sc[i] - 1) * TILE_W / 2;
+          for (k = 0; k < L; k++) if (ds[k] > Math.min(ds[i], ds[j]) && ds[k] < Math.max(ds[i], ds[j])) shift += (sc[k] - 1) * TILE_W;
           shift *= dir;
         }
-        items[i].style.transform = "translate3d(" + (CX + ds[i] * PITCH - TILE_W / 2 + shift) + "px," + y + "px,0)";
-        phs[i].style.transform = "scale(" + scl[i].toFixed(3) + ")";   // only the picture grows; caption keeps its size
-        items[i].style.zIndex = String(Math.round(scl[i] * 100));
+        phs[i].style.transform = sc[i] === 1 ? "" : "scale(" + sc[i] + ")";   // only the picture grows; caption keeps its size
+        sws[i].style.transform = shift ? "translate3d(" + shift + "px,0,0)" : "";
+        items[i].style.zIndex = String(i === j ? 3 : sc[i] > 1 ? 2 : 1);
       }
+    }
+    function render() {
+      var i, d, act = -1, best = PITCH / 2, mx = null;
+      if (px !== null && rc && px >= rc.left && px <= rc.right && py >= rc.top && py <= rc.bottom) { mx = (px - rc.left) / zoom; hover = true; }
+      else hover = false;
+      for (i = 0; i < L; i++) {
+        d = (((i - pos + L / 2) % L) + L) % L - L / 2;
+        ds[i] = d;
+        items[i].style.transform = "translate3d(" + (CX + d * PITCH - TILE_W / 2) + "px," + y + "px,0)";
+        if (mx !== null) { var adx = Math.abs(CX + d * PITCH - mx); if (adx < best) { best = adx; act = i; } }
+      }
+      if (MOBILE || dragging) act = curAct < 0 && !dragging ? -1 : curAct;
+      if (act !== curAct) { curAct = act; setHover(act); }
     }
     function frame(t) {
       var dt = Math.min(0.05, (t - last) / 1000 || 0);
@@ -271,7 +277,7 @@
     sl.addEventListener("pointerup", end);
     sl.addEventListener("pointercancel", end);
     document.addEventListener("pointermove", function (e) { if (e.pointerType === "touch") { px = null; return; } px = e.clientX; py = e.clientY; }, { passive: true });
-    document.documentElement.addEventListener("pointerleave", function () { px = null; py = null; mx = null; hover = false; });
+    document.documentElement.addEventListener("pointerleave", function () { px = null; py = null; hover = false; });
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (en) { visible = en[0].isIntersecting; }, { rootMargin: "200px 0px" }).observe(sl);
     }
