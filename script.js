@@ -214,8 +214,8 @@
     var y = CY - (TILE_H + CAP) / 2;
 
     var pos = Math.floor(n / 2), dragging = false, visible = true, last = 0, sx = 0, sp = 0, hover = false, spd = SPEED;
-    var px = null, py = null, mx = null, scl = items.map(function () { return 1; }), MAXS = MOBILE ? 1 : 1.42, EFF = PITCH * 3.4, phs = items.map(function (el) { return $(".ph", el); });
-    /* dock-style magnification: tiles near the pointer grow smoothly and push their neighbours aside.
+    var px = null, py = null, mx = null, scl = items.map(function () { return 1; }), SC_ACTIVE = MOBILE ? 1 : 1.25, SC_NEAR = MOBILE ? 1 : 1.1, phs = items.map(function (el) { return $(".ph", el); });
+    /* dock-style magnification (ported from the marqdock demo): hovered tile + neighbours grow and push the rest aside.
        The pointer is re-tested against the slider every frame, so scrolling away from it eases the tiles back instead of snapping. */
     function render() {
       var ds = [], j = -1, bestS = 1.002, i, d;
@@ -224,12 +224,17 @@
         if (px >= rc.left && px <= rc.right && py >= rc.top && py <= rc.bottom) { mx = (px - rc.left) / zoom; hover = true; }
         else { mx = null; hover = false; }
       }
+      /* marqdock-style fish-eye: the tile under the pointer is "active" (1.25x), its immediate neighbours get 1.1x, the rest stay 1x */
+      var act = -1, best = PITCH / 2;
       for (i = 0; i < L; i++) {
         d = (((i - pos + L / 2) % L) + L) % L - L / 2;
         ds.push(d);
+        if (mx !== null) { var adx = Math.abs(CX + d * PITCH - mx); if (adx < best) { best = adx; act = i; } }
+      }
+      for (i = 0; i < L; i++) {
         var t = 1;
-        if (mx !== null) { var dx = CX + d * PITCH - mx; if (Math.abs(dx) < EFF / 2) t = 1 + (MAXS - 1) * (1 - Math.cos(((dx + EFF / 2) / EFF) * 2 * Math.PI)) / 2; }   // macOS-dock cosine falloff
-        scl[i] += (t - scl[i]) * (mx !== null ? 0.2 : 0.12);
+        if (act >= 0) { var gap = Math.round(Math.abs(ds[i] - ds[act])); t = gap === 0 ? SC_ACTIVE : gap === 1 ? SC_NEAR : 1; }
+        scl[i] += (t - scl[i]) * 0.2;                // eases like the dock's .28s cubic-bezier(.2,.8,.2,1)
         if (scl[i] > bestS) { bestS = scl[i]; j = i; }
       }
       for (i = 0; i < L; i++) {
