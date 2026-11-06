@@ -704,3 +704,15 @@ a { color: inherit; text-decoration: none; }
 .js .pp-hint.pp-hint2 { opacity: 0; }
 .pp-hint.pp-hint2 { font-family: "Manrope", sans-serif; color: #1f1f1f; }
 .pp-pin { z-index: 2; }
+
+/* grab cursor over the 3D product */
+html.b3d-grab { cursor: grab; }
+html.b3d-grabbing, html.b3d-grabbing * { cursor: grabbing !important; }
+
+/* specification dots: keep them fully visible (only the label text is faded) */
+.specs-t dt { opacity: 1; color: rgba(31,31,31,.45); }
+.specs-t dt b { opacity: 1; }
+
+/* Recommended For: strokes at 50% */
+.apps { border-color: rgba(185,188,186,.5); }
+.apps > div { border-color: rgba(185,188,186,.5); }

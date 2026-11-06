@@ -18,7 +18,7 @@
   // Per-product data. `pitch` tilts the main model so its lighting line faces the viewer.
   var PRODUCTS = {
     direct: {
-      name: "Baffle Direct", pitch: -0.5,
+      name: "Baffle Direct", pitch: -0.3,
       specs: {
         material: "100% recyclable uPVC", config: "Linear · direct-down lighting", width: "84mm – 150mm",
         length: "Up to 6000mm, custom cut", lighting: "Integrated direct-down LED channel",
@@ -162,16 +162,15 @@
     trav.style.width = bw + "px";
     trav.style.height = bh + "px";
 
-    // --- rotation follows the scroll: a little during the shrink, then continuously while the right column scrolls
-    var sr = split.getBoundingClientRect(), span = sr.height - pr.height;
-    var q = span > 0 ? clamp((PT - sr.top) / span, 0, 1) : 0;
+    // --- orientation: hero angle eases to the same angle as the side products; no scroll-driven spin (drag to rotate)
     var B = window.Baffle3D;
     if (pitchCur === null) pitchCur = PRODUCTS[current].pitch;
     if (B && B.views.main) {
       var m = B.views.main;
-      m.yaw = 0.95 + (s * 0.9 + q * 3.1) * Math.PI;
+      m.yaw = lerp(0.95, 1.12, s);
       m.pitch = lerp(0.7, pitchCur, s);
       m.fit = cur.fit;
+      m.hit = { left: cur.cx - cur.w / 2, right: cur.cx + cur.w / 2, top: cur.cy - cur.h / 2, bottom: cur.cy + cur.h / 2 };
     }
   }
 
