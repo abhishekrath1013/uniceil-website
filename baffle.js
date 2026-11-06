@@ -147,8 +147,8 @@
     card.style.backgroundSize = gs + "px " + gs + "px";
 
     // --- the 3D product: hero position -> centred in the panel
-    var hh = mob ? vw * 0.62 : Math.max(560 * z, vh) * 0.62, k = lerp(0.92, 0.9, t);
-    var hero = { cx: vw / 2, cy: lerp(0.56, mob ? 0.33 : 0.37, t) * vh, w: hh * 1.25 * k, h: hh * k, fit: mob ? 1.0 : lerp(1.28, 1.25, t) };
+    var hh = mob ? vw * 0.62 : Math.max(560 * z, vh) * 0.62, k = lerp(1.1, 1.3, t);
+    var hero = { cx: vw / 2, cy: lerp(0.5, mob ? 0.33 : 0.44, t) * vh, w: hh * 1.25 * k, h: hh * k, fit: mob ? 1.0 : 1.28 };
     var pw = Math.min(tg.w * 0.96, tg.h * 0.8 * 1.25), ph = pw / 1.25;
     var cur = {
       cx: lerp(hero.cx, tg.x + tg.w / 2, s), cy: lerp(hero.cy, tg.y + tg.h / 2, s),
@@ -166,8 +166,8 @@
     if (pitchCur === null) pitchCur = PRODUCTS[current].pitch;
     if (B && B.views.main) {
       var m = B.views.main;
-      m.yaw = 1.12 + (s * 0.9 + q * 3.1) * Math.PI;
-      m.pitch = pitchCur + (pitchCur > 0 ? -0.1 * s : 0);
+      m.yaw = 0.95 + (s * 0.9 + q * 3.1) * Math.PI;
+      m.pitch = lerp(0.7, pitchCur, s);
       m.fit = cur.fit;
     }
   }
