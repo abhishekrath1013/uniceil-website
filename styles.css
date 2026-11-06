@@ -689,3 +689,17 @@ a { color: inherit; text-decoration: none; }
 /* depth: soft contact + ambient shadow under the 3D products */
 .b3d-canvas { filter: drop-shadow(0 26px 22px rgba(20,24,22,.26)) drop-shadow(0 6px 8px rgba(20,24,22,.18)); }
 .js .pp-body .pp-panel { background: none; }
+
+/* intro copy + switcher now live with the fixed panel / right column too */
+.pp-intro { margin-bottom: 70px; max-width: 600px; }
+.pp-intro h2 { font-weight: 600; font-size: 32px; line-height: 38px; letter-spacing: -1px; }
+.pp-intro p { font-size: 20px; line-height: 30px; opacity: .85; margin-top: 12px; }
+.pp-intro .pp-btns { display: flex; gap: 12px; margin-top: 22px; }
+.pp-hint.pp-hint2 { left: 0; right: 0; bottom: 20px; align-items: center; z-index: 5; }
+.js .pp-hint.pp-hint2 { opacity: 1; }
+.pp-hint2 .hrow { pointer-events: auto; }
+.pp-hint2 .ch { background: none; border: 0; padding: 0 4px; cursor: pointer; font-family: inherit; }
+.pp-body .pp-panel { z-index: 5; }
+.pp-hint.pp-hint2 { position: fixed; top: auto; right: auto; zoom: var(--zoom, 1); z-index: 6; opacity: 0; transition: none; }
+.js .pp-hint.pp-hint2 { opacity: 0; }
+.pp-hint.pp-hint2 { font-family: "Manrope", sans-serif; color: #1f1f1f; }

@@ -44,15 +44,16 @@
   };
   var ORDER = ["direct", "cove", "indirect"];
   var current = "direct", pitchCur = null;
-  var hint = sc.querySelector(".pp-hint"), hintName = hint && hint.querySelector(".nm");
-  var dots = hint ? Array.prototype.slice.call(hint.querySelectorAll(".dots i")) : [];
+  var hint = sc.querySelector(".pp-hint");
+  var hintNames = Array.prototype.slice.call(document.querySelectorAll(".pp-hint .nm"));
+  var dotSets = Array.prototype.slice.call(document.querySelectorAll(".pp-hint .dots")).map(function (d) { return Array.prototype.slice.call(d.querySelectorAll("i")); });
   var specTag = document.getElementById("spec-tag"), specList = document.querySelector(".specs-t");
 
   function applyProduct(key) {
     var P = PRODUCTS[key]; if (!P) return;
     current = key;
-    if (hintName) hintName.textContent = P.name;
-    dots.forEach(function (d, i) { d.classList.toggle("on", ORDER[i] === key); });
+    hintNames.forEach(function (n) { n.textContent = P.name; });
+    dotSets.forEach(function (ds) { ds.forEach(function (d, i) { d.classList.toggle("on", ORDER[i] === key); }); });
     if (specTag) specTag.textContent = P.name;
     if (specList) {
       specList.classList.add("swap");
@@ -79,7 +80,16 @@
 
   // swipe on the hero (outside the draggable product) or arrow keys switch products
   var sw = null;
-  function heroVisible() { var r = sc.getBoundingClientRect(); return r.bottom > window.innerHeight * 0.5 && r.top < window.innerHeight * 0.5; }
+  var panelEl = document.querySelector(".pp-body .pp-panel");
+  function heroVisible() {
+    var r = sc.getBoundingClientRect(), h = window.innerHeight;
+    if (r.bottom > h * 0.5 && r.top < h * 0.5) return true;
+    var pr = panelEl.getBoundingClientRect();
+    return pr.top < h * 0.8 && pr.bottom > h * 0.2;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("[data-sw]"), function (b) {
+    b.addEventListener("click", function () { if (window.Baffle3D) window.Baffle3D.select(b.getAttribute("data-sw")); });
+  });
   window.addEventListener("pointerdown", function (e) {
     if (!heroVisible() || (e.target.closest && e.target.closest("a,button,[role=dialog]"))) return;
     var B = window.Baffle3D, m = B && B.views.main, r = m && m.rect;
@@ -97,7 +107,7 @@
     else if (e.key === "ArrowLeft") window.Baffle3D.select("left");
   });
 
-  var card = document.querySelector(".pp-card");
+  var card = document.querySelector(".pp-card"), hint2 = document.querySelector(".pp-hint2");
   var body = document.getElementById("why");
   var panel = document.querySelector(".pp-body .pp-panel");
   var split = document.querySelector(".pp-body .pp-split");
@@ -128,6 +138,10 @@
     var cx0 = lerp(0, tg.x, s), cy0 = lerp(0, tg.y, s), cw = lerp(vw, tg.w, s), ch = lerp(vh, tg.h, s);
     card.style.left = cx0 + "px"; card.style.top = cy0 + "px";
     card.style.width = cw + "px"; card.style.height = ch + "px";
+    hint2.style.left = cx0 / z + "px"; hint2.style.width = cw / z + "px";
+    hint2.style.bottom = (vh - cy0 - ch) / z + 18 + "px";
+    hint2.style.opacity = String(clamp((s - 0.85) / 0.15, 0, 1));
+    hint2.style.pointerEvents = s > 0.95 ? "auto" : "none";
     card.style.borderRadius = lerp(0, 16 * z, s) + "px";
     var gs = lerp(86, 59, s) * z;
     card.style.backgroundSize = gs + "px " + gs + "px";
