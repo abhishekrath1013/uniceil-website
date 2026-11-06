@@ -154,10 +154,13 @@
       cx: lerp(hero.cx, tg.x + tg.w / 2, s), cy: lerp(hero.cy, tg.y + tg.h / 2, s),
       w: lerp(hero.w, pw, s), h: lerp(hero.h, ph, s), fit: lerp(hero.fit, mob ? 0.8 : PANEL_FIT, s),
     };
-    trav.style.left = (cur.cx - cur.w / 2) + "px";
-    trav.style.top = (cur.cy - cur.h / 2) + "px";
-    trav.style.width = cur.w + "px";
-    trav.style.height = cur.h + "px";
+    // the 3D view is a scissored rectangle: make it generously larger than the product (same visual size via fit)
+    var F = 1.7, bw = cur.w * F, bh = cur.h * F;
+    cur.fit /= F;
+    trav.style.left = (cur.cx - bw / 2) + "px";
+    trav.style.top = (cur.cy - bh / 2) + "px";
+    trav.style.width = bw + "px";
+    trav.style.height = bh + "px";
 
     // --- rotation follows the scroll: a little during the shrink, then continuously while the right column scrolls
     var sr = split.getBoundingClientRect(), span = sr.height - pr.height;
