@@ -18,7 +18,7 @@
   // Per-product data. `pitch` tilts the main model so its lighting line faces the viewer.
   var PRODUCTS = {
     direct: {
-      name: "Baffle Direct", pitch: -0.3,
+      name: "Baffle Direct", pitch: 0.6, yaw: 2.2,
       specs: {
         material: "100% recyclable uPVC", config: "Linear · direct-down lighting", width: "84mm – 150mm",
         length: "Up to 6000mm, custom cut", lighting: "Integrated direct-down LED channel",
@@ -26,7 +26,7 @@
       },
     },
     cove: {
-      name: "Baffle Cove", pitch: 0.5,
+      name: "Baffle Cove", pitch: 0.5, yaw: 1.12,
       specs: {
         material: "100% recyclable uPVC", config: "In-Fill · cove-lit reveal", width: "150mm – 300mm",
         length: "Up to 4000mm, custom cut", lighting: "Cove channel, warm-white or tunable",
@@ -34,7 +34,7 @@
       },
     },
     indirect: {
-      name: "Baffle Indirect", pitch: 0.5,
+      name: "Baffle Indirect", pitch: 0.5, yaw: 1.12,
       specs: {
         material: "100% recyclable uPVC", config: "Open baffle blades · indirect lighting", width: "100mm – 200mm blades",
         length: "Up to 6000mm, custom cut", lighting: "Indirect uplight channel, optional",
@@ -43,7 +43,7 @@
     },
   };
   var ORDER = ["direct", "cove", "indirect"];
-  var current = "direct", pitchCur = null;
+  var current = "direct", pitchCur = null, yawCur = null;
   var hint = sc.querySelector(".pp-hint");
   var hintNames = Array.prototype.slice.call(document.querySelectorAll(".pp-hint .nm"));
   var dotSets = Array.prototype.slice.call(document.querySelectorAll(".pp-hint .dots")).map(function (d) { return Array.prototype.slice.call(d.querySelectorAll("i")); });
@@ -71,10 +71,10 @@
   function easePitch() {
     if (easing) return; easing = true;
     (function step() {
-      var tgt = PRODUCTS[current].pitch;
-      pitchCur += (tgt - pitchCur) * 0.12;
+      var tgt = PRODUCTS[current].pitch, tgy = PRODUCTS[current].yaw;
+      pitchCur += (tgt - pitchCur) * 0.12; yawCur += (tgy - yawCur) * 0.12;
       update();
-      if (Math.abs(tgt - pitchCur) > 0.004) requestAnimationFrame(step); else { pitchCur = tgt; easing = false; update(); }
+      if (Math.abs(tgt - pitchCur) > 0.004 || Math.abs(tgy - yawCur) > 0.004) requestAnimationFrame(step); else { pitchCur = tgt; yawCur = tgy; easing = false; update(); }
     })();
   }
 
@@ -169,13 +169,13 @@
     trav.style.width = bw + "px";
     trav.style.height = bh + "px";
 
-    // --- orientation: hero angle eases to the same angle as the side products; no scroll-driven spin (drag to rotate)
+    // --- orientation: one fixed pose per product, identical in the hero and the panel
     var B = window.Baffle3D;
-    if (pitchCur === null) pitchCur = PRODUCTS[current].pitch;
+    if (pitchCur === null) { pitchCur = PRODUCTS[current].pitch; yawCur = PRODUCTS[current].yaw; }
     if (B && B.views.main) {
       var m = B.views.main;
-      m.yaw = lerp(2.2, 1.12, s);
-      m.pitch = lerp(0.6, pitchCur, s);
+      m.yaw = yawCur;      // fixed pose: the product never turns with the scroll (drag to rotate)
+      m.pitch = pitchCur;
       m.clip = { left: cx0, top: cy0, width: cw, height: ch };
       panelMode = s > 0.9; panelW = tg.w;
       m.fit = cur.fit;
