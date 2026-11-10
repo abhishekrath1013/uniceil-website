@@ -18,7 +18,7 @@
   // Per-product data. `pitch` tilts the main model so its lighting line faces the viewer.
   var PRODUCTS = {
     direct: {
-      name: "Baffle Direct", pitch: 0.6, yaw: 2.2,
+      name: "Direct Lighting", pitch: 0.6, yaw: 2.2,
       specs: {
         material: "100% recyclable uPVC", config: "Linear · direct-down lighting", width: "84mm – 150mm",
         length: "Up to 6000mm, custom cut", lighting: "Integrated direct-down LED channel",
@@ -26,7 +26,7 @@
       },
     },
     cove: {
-      name: "Baffle Cove", pitch: 0.5, yaw: 1.12,
+      name: "Cove Lighting", pitch: 0.5, yaw: 1.12,
       specs: {
         material: "100% recyclable uPVC", config: "In-Fill · cove-lit reveal", width: "150mm – 300mm",
         length: "Up to 4000mm, custom cut", lighting: "Cove channel, warm-white or tunable",
@@ -34,7 +34,7 @@
       },
     },
     indirect: {
-      name: "Baffle Indirect", pitch: 0.5, yaw: 1.12,
+      name: "Indirect Lighting", pitch: 0.5, yaw: 1.12,
       specs: {
         material: "100% recyclable uPVC", config: "Open baffle blades · indirect lighting", width: "100mm – 200mm blades",
         length: "Up to 6000mm, custom cut", lighting: "Indirect uplight channel, optional",

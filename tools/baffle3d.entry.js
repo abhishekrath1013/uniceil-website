@@ -75,7 +75,7 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
         mats.push({ m: m, u: u });
       }
     });
-    model.scale.z = LENGTH;
+    model.scale.z = LENGTH; model.scale.y = 0.8;
     model.updateMatrixWorld(true);
     var box = new Box3().setFromObject(model), c = box.getCenter(new Vector3()), r = box.getSize(new Vector3()).length() / 2;
     model.position.set(-c.x, -c.y, -c.z);
